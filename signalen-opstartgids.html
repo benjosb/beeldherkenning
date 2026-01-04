@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalen Opstartgids & Documentatie</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            padding: 20px;
+            min-height: 100vh;
+            font-size: 15px;
+            color: #2d3748;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* Navigatie */
+        .nav-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #718096;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover { color: #2f855a; }
+        
+        .nav-tab.active {
+            color: #2f855a;
+            border-bottom-color: #2f855a;
+        }
+
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        
+        h1 {
+            color: #2f855a;
+            font-size: 2em;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        /* Details / Summary Styling */
+        details {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        summary {
+            font-weight: 600;
+            cursor: pointer;
+            color: #2f855a;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        summary::after {
+            content: '+';
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        details[open] summary::after {
+            content: '-';
+        }
+
+        details[open] summary {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .doc-content h3 { margin-top: 15px; margin-bottom: 10px; color: #2d3748; }
+        .doc-content p { margin-bottom: 10px; line-height: 1.6; }
+        .doc-content ul { margin-left: 20px; margin-bottom: 10px; }
+        .doc-content li { margin-bottom: 5px; }
+        
+        /* Step Styles (Behouden) */
+        .step {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .step.completed {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+
+        .step-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            padding-left: 70px;
+        }
+
+        .step-number {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+        
+        .step.completed .step-number {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .step-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2f855a;
+            flex-grow: 1;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .step.collapsed .toggle-icon { transform: rotate(-90deg); }
+        
+        .step-content {
+            padding: 0 20px 20px 70px;
+            max-height: 1000px;
+            transition: all 0.5s ease-in-out;
+            opacity: 1;
+        }
+
+        .step.collapsed .step-content {
+            max-height: 0;
+            padding-bottom: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        
+        .command-box {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            margin: 10px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .command-box pre { margin: 0; white-space: pre-wrap; }
+        
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+        
+        .copy-button:hover { background: #38a169; }
+        
+        .check-button {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .check-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+        
+        .check-button.completed {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .warning, .success {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .warning strong { color: #856404; }
+        
+        .success { background: #d4edda; border-left: 4px solid #28a745; }
+        .success strong { color: #155724; }
+
+        .console-output {
+            background: #1a202c;
+            color: #a0aec0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border: 1px solid #2d3748;
+        }
+        
+        .console-output.visible { display: block; animation: fadeIn 0.3s; }
+
+        .action-btn {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+            display: inline-block; /* WAS: display: none; */
+        }
+        .action-btn:hover { background: #2c5282; }
+        .action-btn.running { opacity: 0.7; cursor: wait; }
+
+        .quick-links {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .quick-links h2 { color: #2f855a; margin-bottom: 15px; font-size: 1.5em; }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        
+        .link-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .link-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #48bb78;
+        }
+        
+        .link-title { font-weight: 600; color: #2f855a; font-size: 1em; margin-bottom: 3px; }
+        .link-url { color: #666; font-size: 0.85em; font-family: 'Courier New', monospace; }
+        
+        .checklist { list-style: none; padding: 0; }
+        .checklist li { padding: 8px 0; padding-left: 30px; position: relative; }
+        .checklist li:before { content: '○'; position: absolute; left: 0; font-size: 1.2em; color: #6c757d; top: 5px; }
+        .checklist li.checked:before { content: '✓'; color: #28a745; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.8em; }
+            .step-content { padding-left: 20px; }
+            .step-header { padding-left: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Signalen Dashboard</h1>
+        <p class="subtitle">Opstartgids & Technische Documentatie</p>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('guide')">⚡️ Opstarten</div>
+            <div class="nav-tab" onclick="switchTab('docs')">📚 Architectuur & Uitleg</div>
+        </div>
+
+        <!-- TAB: GUIDE -->
+        <div id="guide" class="page-section active">
+            <div class="warning" style="margin-top:0;">
+                <strong>⏱️ Geschatte tijd:</strong> 5-10 minuten
+            </div>
+            
+            <!-- Stap 1: Docker Desktop -->
+            <div class="step" id="step1">
+                <div class="step-header" onclick="toggleStep(1)">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Start Docker Desktop</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                    <div style="margin-bottom: 15px;">
+                        <button class="action-btn" onclick="runAction('start-docker', 1, event)">🚀 Start Docker (App)</button>
+                    </div>
+                    <div id="console1" class="console-output"></div>
+                    <ul class="checklist">
+                        <li id="check1a">Open <strong>Docker Desktop</strong></li>
+                        <li id="check1b">Wacht tot het walvis-icoontje stabiel is</li>
+                    </ul>
+                    <button class="check-button" onclick="completeStep(1, event)">✓ Docker Desktop draait</button>
+                </div>
+            </div>
+            
+            <!-- Stap 2: Backend -->
+            <div class="step" id="step2">
+                <div class="step-header" onclick="toggleStep(2)">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Start Backend</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                <div style="margin-bottom: 15px;">
+                    <button class="action-btn" onclick="runAction('start-backend', 2, event)">⚡️ Start Backend Script</button>
+                </div>
+                
+                <div class="doc-content" style="font-size: 0.9em; color: #555; background: #f0fff4; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>🤓 Wat gebeurt hier?</strong><br>
+                    De server voert dit terminal commando uit in de projectmap:<br>
+                    <code style="background: #eee; padding: 2px 5px; border-radius: 4px; color: #d53f8c;">docker-compose up -d</code><br>
+                    Dit start alle containers (database, api, etc.) in "detached" mode (op de achtergrond).
+                </div>
+
+                <div id="console2" class="console-output"></div>
+                    <div class="command-box">
+                        <button class="copy-button" onclick="copyCommand('cmd2')">Kopieer</button>
+                        <pre id="cmd2">cd "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals"
+docker-compose up -d</pre>
+                    </div>
+                    <button class="check-button" onclick="completeStep(2, event)">✓ Backend is gestart</button>
+                </div>
+            </div>
+
+            <!-- Stap 3: Controleer Backend -->
+            <div class="step" id="step3">
+                <div class="step-header" onclick="toggleStep(3)">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Controleer Status & Logs</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                    <div style="margin-bottom: 15px;">
+                        <button class="action-btn" onclick="runAction('status-backend', 3, event, 'GET')">🔍 Check Status</button>
+                        <button class="action-btn" style="background: #805ad5;" onclick="runAction('logs/keycloak', 3, event, 'GET')">📜 Keycloak Logs</button>
+                        <button class="action-btn" style="background: #2b6cb0;" onclick="runAction('logs/api', 3, event, 'GET')">📜 API Logs</button>
+                    </div>
+                    <div id="console3" class="console-output"></div>
+
+                    <div class="command-box">
+                        <button class="copy-button" onclick="copyCommand('cmd3')">Kopieer</button>
+                        <pre id="cmd3">docker-compose ps</pre>
+                    </div>
+                    
+                    <ul class="checklist">
+                        <li id="check3a">Voer commando uit</li>
+                        <li id="check3b">Check: 9-11 containers "Up"</li>
+                        <li id="check3c">Geen "Exit" of "Restarting"</li>
+                    </ul>
+                    
+                    <button class="check-button" onclick="completeStep(3, event)">✓ Containers draaien</button>
+                </div>
+            </div>
+            
+            <!-- Stap 4: Frontend -->
+            <div class="step" id="step4">
+                <div class="step-header" onclick="toggleStep(4)">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Start Frontend</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                <div style="margin-bottom: 15px;">
+                    <button class="action-btn" onclick="runAction('start-frontend', 4, event)">🖥 Open Terminal & Start</button>
+                </div>
+
+                <div class="doc-content" style="font-size: 0.9em; color: #555; background: #f0fff4; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <strong>🤓 Wat gebeurt hier?</strong><br>
+                    De server gebruikt AppleScript om een nieuw Terminal venster te openen en voert uit:<br>
+                    <code style="background: #eee; padding: 2px 5px; border-radius: 4px; color: #d53f8c;">cd .../signals-frontend && npm start</code><br>
+                    Dit start de React ontwikkelserver. We openen een apart venster zodat je de live logs kunt zien.
+                </div>
+
+                <div id="console3" class="console-output"></div>
+                    <button class="check-button" onclick="completeStep(3, event)">✓ Frontend is gestart</button>
+                </div>
+            </div>
+            
+            <!-- Stap 5: Test & Admin -->
+            <div class="step" id="step5">
+                <div class="step-header" onclick="toggleStep(5)">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Test & Admin</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                    <ul class="checklist">
+                        <li id="check5a"><a href="http://localhost:3001" target="_blank">Frontend</a> openen</li>
+                        <li id="check5b"><a href="http://localhost:8000/signals/admin/" target="_blank">Admin</a> openen</li>
+                    </ul>
+                    <div class="warning">
+                        <strong>Problemen met inloggen?</strong><br>
+                        <button class="action-btn" style="background: #e53e3e; margin-top: 10px;" onclick="runAction('create-admin', 5, event)">👤 Maak Admin User (admin/admin)</button>
+                        <div id="console5" class="console-output"></div>
+                    </div>
+                    <button class="check-button" onclick="completeStep(5, event)">✓ Alles werkt!</button>
+                </div>
+            </div>
+
+            <!-- Stap 6: API Tester -->
+            <div class="step" id="step6">
+                <div class="step-header" onclick="toggleStep(6)">
+                    <div class="step-number">6</div>
+                    <div class="step-title">🧪 API Tester (Lokaal)</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <button class="action-btn" onclick="testApi('/signals/v1/public/categories/', 6, event)">📂 Haal Categorieën</button>
+                        <button class="action-btn" style="background: #805ad5;" onclick="createSignalWithPhoto(event)">📸 Test Melding (+Foto)</button>
+                    </div>
+                    <div id="apiResult6" class="console-output" style="max-height: 300px; color: #a0aec0;">
+                        Klik op een knop om te testen...
+                    </div>
+                    <button class="check-button" onclick="completeStep(6, event)">✓ API werkt</button>
+                </div>
+            </div>
+
+            <!-- Stap 7: Mobiel -->
+            <div class="step" id="step7">
+                <div class="step-header" onclick="toggleStep(7)">
+                    <div class="step-number">7</div>
+                    <div class="step-title">📱 Mobiel & Apps</div>
+                    <div class="toggle-icon">▼</div>
+                </div>
+                <div class="step-content">
+                    <div class="warning"><strong>⚠️ Let op:</strong> Je telefoon moet op <u>dezelfde WiFi</u> zitten als je Mac!</div>
+                    <div style="margin-bottom: 20px;">
+                        <button class="action-btn" style="background: #ed8936;" onclick="runAction('mobile-start', 7, event)">📱 Start Mobiele Modus</button>
+                        <button class="action-btn" style="background: #718096;" onclick="runAction('mobile-stop', 7, event)">Herstel Config</button>
+                    </div>
+                    <div id="console7" class="console-output"></div>
+                    <div id="qr-container" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                        <h3 style="color: #2f855a;">Optie A: Via de Browser</h3>
+                        <img id="qr-code" src="" alt="QR Code" style="margin: 10px 0; border-radius: 10px;">
+                        <p id="mobile-url" style="font-family: monospace; color: #2f855a; font-weight: bold;"></p>
+                    </div>
+                    <button class="check-button" onclick="completeStep(7, event)">✓ Getest op mobiel</button>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="quick-links">
+                <h2>🔗 Links</h2>
+                <div class="links-grid">
+                    <a href="http://localhost:3001" target="_blank" class="link-card"><div class="link-title">👥 Frontend</div></a>
+                    <a href="http://localhost:8000/signals/admin/" target="_blank" class="link-card"><div class="link-title">👔 Admin</div></a>
+                    <a href="http://localhost:8000/signals/swagger/" target="_blank" class="link-card"><div class="link-title">📚 API Docs</div></a>
+                    <a href="http://localhost:8002" target="_blank" class="link-card"><div class="link-title">🔐 Keycloak</div></a>
+                </div>
+            </div>
+            
+            <div class="quick-links" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); margin-top: 20px;">
+                <h2 style="color: #c62828; font-size: 1.5em;">🛑 Stoppen</h2>
+                <div style="margin-bottom: 15px;">
+                    <button class="action-btn" style="background: #e53e3e;" onclick="runAction('stop-backend', 'Stop', event)">🛑 Stop Backend</button>
+                </div>
+                <div id="consoleStop" class="console-output"></div>
+            </div>
+        </div>
+
+        <!-- TAB: DOCS -->
+        <div id="docs" class="page-section">
+            <h2 style="color: #2f855a; margin-bottom: 20px;">Architectuur & Uitleg</h2>
+            <p style="margin-bottom: 20px;">
+                Hier vind je de technische achtergrond van de Signalen applicatie. Handig om te gebruiken als naslagwerk
+                of bij het presenteren van de architectuur aan de gemeente.
+            </p>
+
+            <details>
+                <summary>1. De Drie-eenheid: Django, Keycloak & Docker</summary>
+                <div class="doc-content">
+                    <p>Signalen is gebouwd volgens de "Common Ground" principes en bestaat uit drie hoofdonderdelen die als containers (via Docker) draaien:</p>
+                    
+                    <h3>1. De Backend (Django)</h3>
+                    <p>
+                        Dit is de motor. Gemaakt in Python (Django Framework). Het beheert de database (PostgreSQL) en biedt de API aan.
+                        Alle logica over meldingen, locaties en statussen zit hier.
+                    </p>
+
+                    <h3>2. De Uitsmijter (Keycloak)</h3>
+                    <p>
+                        Signalen doet zelf géén wachtwoordbeheer. Dat besteedt het uit aan Keycloak. Dit is een "Identity Access Management" (IAM) systeem.
+                        Dit is standaard bij overheden voor Single Sign On (SSO). Keycloak vertelt Django: "Deze gebruiker is OK en heeft deze rechten".
+                    </p>
+
+                    <h3>3. De Frontend (React)</h3>
+                    <p>
+                        Dit is wat de burger ziet. Een losse applicatie die alleen maar praat met de API van de backend.
+                    </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>2. Het Probleem: Lokaal vs. Productie</summary>
+                <div class="doc-content">
+                    <p>In een productie-omgeving (bij de gemeente) werkt alles met vaste domeinnamen (bv. <code>signalen.amsterdam.nl</code>).
+                    Certificaten en netwerken zijn statisch ingesteld.</p>
+                    
+                    <p><strong>Lokaal (op jouw Mac) is dat anders:</strong></p>
+                    <ul>
+                        <li>Je IP-adres verandert steeds (thuis, kantoor, hotspot).</li>
+                        <li>Docker containers praten intern met elkaar (via <code>http://keycloak:8002</code>), maar jouw browser ziet <code>localhost</code>.</li>
+                        <li>Je telefoon (mobiel testen) ziet <code>192.168.x.x</code>.</li>
+                    </ul>
+                    
+                    <p>
+                        Dit zorgt voor authenticatie-problemen: Keycloak verwacht een verzoek van domein A, maar krijgt het van IP B, en blokkeert het.
+                        Daarom gebruiken we in deze gids scripts om de configuratie tijdelijk "om te buigen" (Mobiele Modus).
+                    </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>3. De Robuuste Oplossing (Best Practice)</summary>
+                <div class="doc-content">
+                    <p>Om van het "gedoe" met wisselende IP-adressen af te zijn, passen we een robuuste configuratie toe:</p>
+                    
+                    <h3>Stap A: Alles toestaan (Dev Only)</h3>
+                    <p>We configureren de Backend om verzoeken van <strong>iedereen</strong> te accepteren:</p>
+                    <div class="command-box"><pre>ALLOWED_HOSTS=*
+CORS_ORIGIN_ALLOW_ALL=True</pre></div>
+                    
+                    <h3>Stap B: Flexibele Authenticatie</h3>
+                    <p>We vertellen Keycloak dat hij niet strikt naar hostnames moet kijken (Strict Hostname Checking = False).
+                    Hierdoor accepteert hij inlogpogingen via Localhost én via 192.168.x.x.</p>
+                    
+                    <p><em>Dit is geïmplementeerd in de scripts van deze Opstartgids.</em></p>
+                </div>
+            </details>
+            
+            <details>
+                <summary>4. API Endpoints voor Apps (UrbanVue)</summary>
+                <div class="doc-content">
+                    <p>Als je een externe app wilt koppelen (zoals een camera-app), gebruik je deze endpoints:</p>
+                    <ul>
+                        <li><strong>Base URL:</strong> <code>http://[JOUW-IP]:8000/signals/v1/</code></li>
+                        <li><strong>Melding Maken:</strong> <code>POST /public/signals/</code></li>
+                        <li><strong>Foto Uploaden:</strong> <code>POST /public/signals/{uuid}/attachments/</code></li>
+                        <li><strong>Auth:</strong> Voor publieke meldingen is geen auth nodig. Voor medewerker-acties heb je een Bearer Token nodig via Keycloak.</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tabId) {
+            // Update tabs
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        let completedSteps = 0;
+        const totalSteps = 7;
+        
+        function copyCommand(id) {
+            const element = document.getElementById(id);
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Gekopieerd!');
+            });
+        }
+        
+        function toggleStep(stepNumber) {
+            const step = document.getElementById('step' + stepNumber);
+            step.classList.toggle('collapsed');
+        }
+        
+        function completeStep(stepNumber, event) {
+            if(event) event.stopPropagation();
+            const step = document.getElementById('step' + stepNumber);
+            const button = step.querySelector('.check-button');
+            
+            if (!step.classList.contains('completed')) {
+                step.classList.add('completed');
+                button.textContent = '✓ Voltooid';
+                completedSteps++;
+                setTimeout(() => {
+                    step.classList.add('collapsed');
+                    if (stepNumber < totalSteps) {
+                        const nextStep = document.getElementById('step' + (stepNumber + 1));
+                        if(nextStep) nextStep.classList.remove('collapsed');
+                    }
+                }, 800);
+            }
+        }
+
+        async function testApi(endpoint, stepId, event) {
+            if (event) event.stopPropagation();
+            const consoleDiv = document.getElementById('apiResult' + stepId);
+            const btn = event.target;
+            
+            btn.classList.add('running');
+            btn.textContent = 'Laden...';
+            consoleDiv.textContent = '> Request versturen...';
+            consoleDiv.classList.add('visible');
+
+            try {
+                const response = await fetch(`http://localhost:8000${endpoint}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    consoleDiv.textContent = `> SUCCESS:\n${JSON.stringify(data, null, 2)}`;
+                    consoleDiv.style.color = '#48bb78';
+                } else {
+                    consoleDiv.textContent = `> ERROR: ${response.status}`;
+                    consoleDiv.style.color = '#f56565';
+                }
+            } catch (err) {
+                consoleDiv.textContent = `> NETWORK ERROR: ${err.message}`;
+                consoleDiv.style.color = '#f56565';
+            } finally {
+                btn.classList.remove('running');
+                btn.textContent = 'Opnieuw Testen';
+            }
+        }
+
+        async function createSignalWithPhoto(event) {
+            if (event) event.stopPropagation();
+            const consoleDiv = document.getElementById('apiResult6'); // Nu stap 6
+            consoleDiv.classList.add('visible');
+            consoleDiv.textContent = '> Start test melding...';
+            
+            try {
+                // 1. Categorie ophalen
+                const catResp = await fetch('http://localhost:8000/signals/v1/public/categories/');
+                const cats = await catResp.json();
+                let catUrl = null;
+                
+                if(cats.results && cats.results.length > 0) catUrl = cats.results[0].url;
+                else if(Array.isArray(cats) && cats.length > 0) catUrl = cats[0].url;
+                
+                if(!catUrl) throw new Error("Geen categorieën gevonden. Maak eerst categorieën aan in Admin.");
+
+                // 2. Melding maken
+                const signalData = {
+                    text: "Auto-test melding",
+                    category: { sub_category: catUrl },
+                    location: { geometrie: { type: "Point", coordinates: [4.89, 52.37] } },
+                    reporter: { email: "test@example.com", sharing_allowed: true },
+                    incident_date_start: new Date().toISOString()
+                };
+
+                const resp = await fetch('http://localhost:8000/signals/v1/public/signals/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(signalData)
+                });
+                
+                if(!resp.ok) throw new Error(await resp.text());
+                const signal = await resp.json();
+                
+                consoleDiv.textContent = `> SUCCESS! Melding gemaakt: ${signal.id}`;
+                consoleDiv.style.color = '#48bb78';
+                
+            } catch(e) {
+                consoleDiv.textContent = `> ERROR: ${e.message}`;
+                consoleDiv.style.color = '#f56565';
+            }
+        }
+
+        // Server interactie
+        const SERVER_URL = 'http://localhost:3333';
+        fetch(SERVER_URL + '/index.html', { method: 'HEAD' })
+            .then(() => {
+                document.querySelectorAll('.action-btn').forEach(btn => btn.style.display = 'inline-block');
+            });
+
+        async function runAction(endpoint, stepId, event, method = 'POST') {
+            if (event) event.stopPropagation();
+            const consoleDiv = document.getElementById('console' + stepId) || document.getElementById('consoleStop') || document.getElementById('console6');
+            const btn = event.target;
+            
+            btn.classList.add('running');
+            consoleDiv.textContent = '> Bezig...';
+            consoleDiv.classList.add('visible');
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/${endpoint}`, { method: method });
+                const data = await response.json();
+                
+                if (data.success || (endpoint === 'mobile-start' && data.ip)) {
+                    consoleDiv.textContent = `> SUCCESS:\n${data.output}`;
+                    consoleDiv.style.color = '#48bb78';
+                    
+                    if (endpoint === 'mobile-start' && data.ip) {
+                        const url = `http://${data.ip}:3001`;
+                        document.getElementById('mobile-url').textContent = url;
+                        document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+                        document.getElementById('qr-container').style.display = 'block';
+                    }
+                } else {
+                    consoleDiv.textContent = `> ERROR:\n${data.output}`;
+                    consoleDiv.style.color = '#f56565';
+                }
+            } catch (err) {
+                consoleDiv.textContent = `> SERVER ERROR: ${err.message}`;
+                consoleDiv.style.color = '#f56565';
+            } finally {
+                btn.classList.remove('running');
+            }
+        }
+    </script>
+</body>
+</html>

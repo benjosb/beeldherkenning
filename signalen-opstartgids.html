@@ -323,6 +323,9 @@
             h1 { font-size: 1.8em; }
             .step-content { padding-left: 20px; }
             .step-header { padding-left: 60px; }
+            /* Roadmap responsive */
+            #roadmap > div:nth-child(3) { grid-template-columns: 1fr !important; }
+            #roadmap details .doc-content > div:last-child { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
@@ -339,7 +342,8 @@
         
         <div class="nav-tabs">
             <div class="nav-tab active" onclick="switchTab('guide')">⚡️ Opstarten</div>
-            <div class="nav-tab" onclick="switchTab('docs')">📚 Architectuur & Uitleg</div>
+            <div class="nav-tab" onclick="switchTab('docs')">📚 Architectuur</div>
+            <div class="nav-tab" onclick="switchTab('roadmap')">🚀 Beeldherkenning Roadmap</div>
         </div>
 
         <!-- TAB: GUIDE -->
@@ -548,6 +552,224 @@ docker-compose up -d</pre>
                     <button class="action-btn" style="background: #e53e3e;" onclick="runAction('stop-backend', 'Stop', event)">🛑 Stop Backend</button>
                 </div>
                 <div id="consoleStop" class="console-output"></div>
+            </div>
+        </div>
+
+        <!-- TAB: ROADMAP -->
+        <div id="roadmap" class="page-section">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #1a365d; font-size: 1.8em; margin-bottom: 10px;">🚗 Beeldherkenning Wassenaar</h2>
+                <p style="color: #4a5568; font-size: 1.1em;">Van schouwen naar slim beheer: gefaseerde uitrol</p>
+            </div>
+
+            <!-- Visie Banner -->
+            <div style="background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px;">
+                <h3 style="margin-bottom: 15px; font-size: 1.3em;">💡 De Visie</h3>
+                <p style="line-height: 1.7; margin-bottom: 15px;">
+                    Camera's op het gemeentelijke wagenpark maken <strong>elke 10 meter / 3 seconden</strong> foto's. 
+                    AI analyseert de beelden en signaleert afwijkingen: losliggende stoeptegels, laaghangend groen, 
+                    lachgaspatronen, bijplaatsingen bij ORACs.
+                </p>
+                <p style="line-height: 1.7; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #48bb78;">
+                    <strong>🎯 Strategische aanpak:</strong> We beginnen met <em>neutrale monitoring</em> (rapportage), 
+                    niet met meldingen genereren. Zo creëren we draagvlak voordat we processen automatiseren.
+                </p>
+            </div>
+
+            <!-- Fase Overzicht -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                <!-- Fase 1 -->
+                <div style="background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%); border-radius: 15px; padding: 20px; border: 3px solid #38a169;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="background: #38a169; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold;">FASE 1</span>
+                        <span style="background: #276749; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">ACTIEF</span>
+                    </div>
+                    <h3 style="color: #276749; margin-bottom: 10px;">📊 RAPPORTAGE</h3>
+                    <p style="font-size: 0.95em; color: #2f855a; line-height: 1.6;">
+                        Monitoren of beeldkwaliteit voldoet aan BOR-normen: <strong>"Schoon, Heel en Veilig"</strong>
+                    </p>
+                    <ul style="margin-top: 15px; font-size: 0.9em; color: #276749;">
+                        <li>✓ Neutrale waarneming</li>
+                        <li>✓ Geen weerstand beheerders</li>
+                        <li>✓ Output: BI Dashboard</li>
+                    </ul>
+                </div>
+
+                <!-- Fase 2 -->
+                <div style="background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%); border-radius: 15px; padding: 20px; border: 3px solid #3182ce;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="background: #3182ce; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold;">FASE 2</span>
+                        <span style="background: #2c5282; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">GEPLAND</span>
+                    </div>
+                    <h3 style="color: #2c5282; margin-bottom: 10px;">🎯 QUALITY</h3>
+                    <p style="font-size: 0.95em; color: #2b6cb0; line-height: 1.6;">
+                        Foto's matchen met <strong>kernregistraties</strong> om datakwaliteit te verbeteren.
+                    </p>
+                    <ul style="margin-top: 15px; font-size: 0.9em; color: #2c5282;">
+                        <li>○ Start met OVL (lantaarnpalen)</li>
+                        <li>○ World Model (geen LLM)</li>
+                        <li>○ Verificatie door gegevensbeheerder</li>
+                    </ul>
+                </div>
+
+                <!-- Fase 3 -->
+                <div style="background: linear-gradient(135deg, #e9d8fd 0%, #d6bcfa 100%); border-radius: 15px; padding: 20px; border: 3px solid #805ad5; opacity: 0.85;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="background: #805ad5; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold;">FASE 3</span>
+                        <span style="background: #553c9a; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">TOEKOMST</span>
+                    </div>
+                    <h3 style="color: #553c9a; margin-bottom: 10px;">🤖 MELDINGEN</h3>
+                    <p style="font-size: 0.95em; color: #6b46c1; line-height: 1.6;">
+                        <strong>Automatische meldingen</strong> in Signalen (na draagvlak beheerders).
+                    </p>
+                    <ul style="margin-top: 15px; font-size: 0.9em; color: #553c9a;">
+                        <li>○ Gesprek met bestuurders</li>
+                        <li>○ Integratie met Signalen API</li>
+                        <li>○ Prioritering & routering</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Technische Architectuur -->
+            <details open style="background: #f7fafc; border: 2px solid #e2e8f0; margin-bottom: 20px;">
+                <summary style="font-size: 1.1em;">🏗️ Technische Architectuur</summary>
+                <div class="doc-content" style="padding-top: 15px;">
+                    <div style="background: #1a202c; color: #e2e8f0; padding: 20px; border-radius: 10px; font-family: monospace; font-size: 0.9em; overflow-x: auto;">
+<pre style="margin: 0;">
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         📷 CAMERA-AUTO (GoPro/Telefoon)                 │
+│                         Elke 10m / 3 sec foto's                         │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    🧠 BEELDANALYSE ENGINE                                │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
+│  │ Zwerfafval  │  │ Stoeptegels │  │ Groen/Snoei │  │ ORAC/Afval  │    │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘    │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+            ┌────────────────────┼────────────────────┐
+            ▼                    ▼                    ▼
+┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+│  📊 RAPPORTAGE    │  │  🎯 QUALITY       │  │  📋 MELDINGEN     │
+│  (BI Dashboard)   │  │  (World Model)    │  │  (Signalen API)   │
+│                   │  │                   │  │                   │
+│  • BOR Scores     │  │  • Kernregistr.   │  │  • Auto-melding   │
+│  • Schoon/Heel    │  │  • OVL/Bomen      │  │  • Coördinator    │
+│  • Trendanalyse   │  │  • Data matching  │  │  • Prioritering   │
+└───────────────────┘  └───────────────────┘  └───────────────────┘
+        │                       │                       │
+        ▼                       ▼                       ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    👥 GEBRUIKERS                                         │
+│  Beleidsmakers     Gegevensbeheerders      Beheerders/Coördinatoren     │
+└─────────────────────────────────────────────────────────────────────────┘
+</pre>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Kernregistraties -->
+            <details style="background: #fffaf0; border: 2px solid #ed8936;">
+                <summary style="font-size: 1.1em; color: #c05621;">📁 Kernregistraties (Fase 2: QUALITY)</summary>
+                <div class="doc-content" style="padding-top: 15px;">
+                    <p style="margin-bottom: 15px;">Deze datasets worden gematcht met de foto-analyse:</p>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #38a169;">
+                            <strong style="color: #38a169;">🚦 OVL (Openbare Verlichting)</strong>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Lantaarnpalen - <em>Startpunt Fase 2</em></p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #3182ce;">
+                            <strong style="color: #3182ce;">🌳 Bomen</strong>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Bomenregister, snoeidata</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #805ad5;">
+                            <strong style="color: #805ad5;">🕳️ Kolken</strong>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Rioolputten, afvoer</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #e53e3e;">
+                            <strong style="color: #e53e3e;">🚦 VRI's</strong>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Verkeersregelinstallaties</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #d69e2e;">
+                            <strong style="color: #d69e2e;">🅿️ Parkeerplaatsen</strong>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Locaties, markering</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #319795;">
+                            <strong style="color: #319795;">🚰 Riolen</strong>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Leidingennet, putten</p>
+                        </div>
+                    </div>
+                    <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <strong>💡 World Model aanpak:</strong> Geen LLM, maar een gestructureerd model dat foto-coördinaten 
+                        matcht met GIS-data uit de kernregistraties. Detecteert discrepanties (asset bestaat wel/niet op locatie).
+                    </div>
+                </div>
+            </details>
+
+            <!-- Detectie Types -->
+            <details style="background: #fff5f5; border: 2px solid #e53e3e; margin-top: 20px;">
+                <summary style="font-size: 1.1em; color: #c53030;">🔍 Detectie Types (Beeldanalyse)</summary>
+                <div class="doc-content" style="padding-top: 15px;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <span style="font-size: 1.5em;">🗑️</span>
+                            <strong style="display: block; margin: 10px 0;">Zwerfafval</strong>
+                            <p style="font-size: 0.9em; color: #666;">Losse rommel, zakken, etc.</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <span style="font-size: 1.5em;">🧱</span>
+                            <strong style="display: block; margin: 10px 0;">Losliggende tegels</strong>
+                            <p style="font-size: 0.9em; color: #666;">Struikelgevaar, verzakking</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <span style="font-size: 1.5em;">🌿</span>
+                            <strong style="display: block; margin: 10px 0;">Laaghangend groen</strong>
+                            <p style="font-size: 0.9em; color: #666;">Overgroei, snoeiwerk nodig</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <span style="font-size: 1.5em;">💨</span>
+                            <strong style="display: block; margin: 10px 0;">Lachgaspatronen</strong>
+                            <p style="font-size: 0.9em; color: #666;">Overlast, handhaving</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <span style="font-size: 1.5em;">📦</span>
+                            <strong style="display: block; margin: 10px 0;">Bijplaatsingen ORAC</strong>
+                            <p style="font-size: 0.9em; color: #666;">Afval naast containers</p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <span style="font-size: 1.5em;">💡</span>
+                            <strong style="display: block; margin: 10px 0;">Defecte OVL</strong>
+                            <p style="font-size: 0.9em; color: #666;">Kapotte lantaarnpalen</p>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Waarom deze aanpak -->
+            <div style="background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%); padding: 25px; border-radius: 15px; margin-top: 25px; border: 2px solid #3182ce;">
+                <h3 style="color: #2c5282; margin-bottom: 15px;">🧠 Waarom deze gefaseerde aanpak?</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4 style="color: #e53e3e; margin-bottom: 10px;">❌ Wat we NIET doen</h4>
+                        <ul style="color: #4a5568; line-height: 1.8;">
+                            <li>Direct meldingen genereren</li>
+                            <li>Werk creëren voor beheerders</li>
+                            <li>Weerstand opwekken</li>
+                            <li>"Big bang" implementatie</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color: #38a169; margin-bottom: 10px;">✅ Wat we WEL doen</h4>
+                        <ul style="color: #4a5568; line-height: 1.8;">
+                            <li>Eerst waarde bewijzen (rapportage)</li>
+                            <li>Data kwaliteit verbeteren</li>
+                            <li>Draagvlak opbouwen</li>
+                            <li>Stap voor stap uitrollen</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
 

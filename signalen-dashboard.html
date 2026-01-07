@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalen Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        /* Status Cards */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .status-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .status-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .status-card.online { border-color: #22c55e; }
+        .status-card.offline { border-color: #ef4444; opacity: 0.7; }
+        
+        .status-icon {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .status-name {
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-bottom: 3px;
+        }
+        
+        .status-port {
+            font-family: monospace;
+            font-size: 0.75em;
+            color: #64748b;
+        }
+        
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 5px;
+            background: #64748b;
+        }
+        
+        .status-card.online .status-dot { background: #22c55e; animation: pulse 2s infinite; }
+        .status-card.offline .status-dot { background: #ef4444; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Sections */
+        .section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+        }
+        
+        /* Login Table */
+        .login-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .login-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            color: #64748b;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .login-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #334155;
+            font-size: 0.9em;
+        }
+        
+        .login-table tr:last-child td { border-bottom: none; }
+        
+        .login-table code {
+            background: #0f172a;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #fbbf24;
+        }
+        
+        .login-table a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        
+        .login-table a:hover { text-decoration: underline; }
+        
+        /* Quick Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .action-btn:hover { background: #2563eb; }
+        .action-btn.green { background: #22c55e; }
+        .action-btn.green:hover { background: #16a34a; }
+        .action-btn.red { background: #ef4444; }
+        .action-btn.red:hover { background: #dc2626; }
+        .action-btn.purple { background: #8b5cf6; }
+        .action-btn.purple:hover { background: #7c3aed; }
+        
+        /* Command Box */
+        .cmd {
+            background: #0f172a;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #22c55e;
+            margin-top: 12px;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .cmd .copy {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: #334155;
+            border: none;
+            color: #94a3b8;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            cursor: pointer;
+        }
+        
+        .cmd .copy:hover { background: #475569; color: white; }
+        
+        /* Console */
+        .console {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #94a3b8;
+            margin-top: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .console.visible { display: block; }
+        .console.success { color: #22c55e; }
+        .console.error { color: #ef4444; }
+        
+        /* Mobile App */
+        .mobile-box {
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .mobile-box .info { flex: 1; }
+        .mobile-box h3 { margin-bottom: 5px; }
+        .mobile-box p { font-size: 0.85em; opacity: 0.9; }
+        .mobile-box code {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #475569;
+            font-size: 0.8em;
+            margin-top: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .status-grid { grid-template-columns: repeat(3, 1fr); }
+            .mobile-box { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>🚦 Signalen Dashboard</h1>
+        <p class="subtitle">Gemeente Wassenaar • Lokale ontwikkelomgeving</p>
+        
+        <!-- Status Overview -->
+        <div class="status-grid" id="statusGrid">
+            <a href="http://localhost:3001" target="_blank" class="status-card" id="status-frontend">
+                <div class="status-icon">🏠</div>
+                <div class="status-name">Frontend<span class="status-dot"></span></div>
+                <div class="status-port">:3001</div>
+            </a>
+            <a href="http://localhost:8000/signals/admin/" target="_blank" class="status-card" id="status-api">
+                <div class="status-icon">⚙️</div>
+                <div class="status-name">API<span class="status-dot"></span></div>
+                <div class="status-port">:8000</div>
+            </a>
+            <a href="http://localhost:8002" target="_blank" class="status-card" id="status-keycloak">
+                <div class="status-icon">🔐</div>
+                <div class="status-name">Keycloak<span class="status-dot"></span></div>
+                <div class="status-port">:8002</div>
+            </a>
+            <a href="http://localhost:5566" target="_blank" class="status-card" id="status-celery">
+                <div class="status-icon">🌸</div>
+                <div class="status-name">Celery<span class="status-dot"></span></div>
+                <div class="status-port">:5566</div>
+            </a>
+            <a href="http://localhost:8025" target="_blank" class="status-card" id="status-mail">
+                <div class="status-icon">📧</div>
+                <div class="status-name">Mail<span class="status-dot"></span></div>
+                <div class="status-port">:8025</div>
+            </a>
+            <a href="http://localhost:9001" target="_blank" class="status-card" id="status-minio">
+                <div class="status-icon">📦</div>
+                <div class="status-name">MinIO<span class="status-dot"></span></div>
+                <div class="status-port">:9001</div>
+            </a>
+        </div>
+        
+        <!-- iPhone App -->
+        <div class="mobile-box">
+            <div class="info">
+                <h3>📱 iPhone Signalen App</h3>
+                <p>Meldingen maken met je iPhone via Expo Go</p>
+                <code id="mobileUrl">exp://192.168.178.166:8081</code>
+            </div>
+            <button class="action-btn" onclick="window.open('exp://192.168.178.166:8081', '_blank')">Open in Expo</button>
+        </div>
+        
+        <!-- Login Credentials -->
+        <div class="section">
+            <div class="section-title">🔑 Inloggegevens</div>
+            <table class="login-table">
+                <thead>
+                    <tr>
+                        <th>Waar</th>
+                        <th>Gebruikersnaam</th>
+                        <th>Wachtwoord</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="http://localhost:3001/manage" target="_blank">Beheer Dashboard</a></td>
+                        <td><code>signals.admin@example.com</code></td>
+                        <td><code>admin</code></td>
+                    </tr>
+                    <tr>
+                        <td><a href="http://localhost:8000/signals/admin/" target="_blank">Django Admin</a></td>
+                        <td colspan="2">→ Via SSO (zelfde als hierboven)</td>
+                    </tr>
+                    <tr>
+                        <td><a href="http://localhost:8002/admin" target="_blank">Keycloak Admin</a></td>
+                        <td><code>admin</code></td>
+                        <td><code>admin</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Quick Start -->
+        <div class="section">
+            <div class="section-title">🚀 Opstarten</div>
+            <div class="actions">
+                <button class="action-btn green" onclick="copyCmd('start')">📋 Kopieer Backend Start</button>
+                <button class="action-btn purple" onclick="copyCmd('frontend')">📋 Kopieer Frontend Start</button>
+                <button class="action-btn red" onclick="copyCmd('stop')">📋 Kopieer Stop</button>
+            </div>
+            <div class="cmd" id="cmdBox">
+                <button class="copy" onclick="copyText()">Copy</button>
+                <span id="cmdText"># Backend starten:
+cd "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals"
+docker-compose up -d</span>
+            </div>
+        </div>
+        
+        <!-- API Test -->
+        <div class="section">
+            <div class="section-title">🧪 API Test</div>
+            <div class="actions">
+                <button class="action-btn" onclick="testApi('/signals/v1/public/terms/categories')">📂 Categorieën</button>
+                <button class="action-btn" onclick="testApi('/status/health/')">💓 Health</button>
+                <button class="action-btn purple" onclick="createTestSignal()">📸 Test Melding</button>
+            </div>
+            <div class="console" id="apiConsole">Klik een knop om te testen...</div>
+        </div>
+        
+        <!-- Links -->
+        <div class="section">
+            <div class="section-title">🔗 Handige Links</div>
+            <div class="actions">
+                <a href="http://localhost:8000/signals/swagger/" target="_blank" class="action-btn">📚 API Docs</a>
+                <a href="http://localhost:3001" target="_blank" class="action-btn green">🏠 Melding Maken</a>
+                <a href="http://localhost:3001/manage/incidents" target="_blank" class="action-btn purple">📊 Beheer</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Laatste check: <span id="lastCheck">-</span> • <a href="#" onclick="checkAll(); return false;" style="color:#3b82f6">Ververs status</a>
+        </div>
+    </div>
+    
+    <script>
+        const COMMANDS = {
+            start: `# Backend starten:
+cd "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals"
+docker-compose up -d`,
+            frontend: `# Frontend starten:
+cd "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals/signals-frontend"
+npm start`,
+            stop: `# Alles stoppen:
+# Frontend: Ctrl+C in terminal
+# Backend:
+cd "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals"
+docker-compose down`
+        };
+        
+        function copyCmd(type) {
+            document.getElementById('cmdText').textContent = COMMANDS[type];
+            copyText();
+        }
+        
+        function copyText() {
+            const text = document.getElementById('cmdText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.cmd .copy');
+                btn.textContent = '✓';
+                setTimeout(() => btn.textContent = 'Copy', 1500);
+            });
+        }
+        
+        async function checkService(id, url) {
+            const card = document.getElementById('status-' + id);
+            try {
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 3000);
+                await fetch(url, { mode: 'no-cors', signal: controller.signal });
+                card.classList.add('online');
+                card.classList.remove('offline');
+            } catch {
+                card.classList.add('offline');
+                card.classList.remove('online');
+            }
+        }
+        
+        function checkAll() {
+            checkService('frontend', 'http://localhost:3001');
+            checkService('api', 'http://localhost:8000');
+            checkService('keycloak', 'http://localhost:8002');
+            checkService('celery', 'http://localhost:5566');
+            checkService('mail', 'http://localhost:8025');
+            checkService('minio', 'http://localhost:9001');
+            document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString('nl-NL');
+        }
+        
+        async function testApi(endpoint) {
+            const con = document.getElementById('apiConsole');
+            con.classList.add('visible');
+            con.className = 'console visible';
+            con.textContent = '> Loading...';
+            
+            try {
+                const res = await fetch('http://localhost:8000' + endpoint);
+                const data = await res.json();
+                con.textContent = '> ' + res.status + ' OK\n' + JSON.stringify(data, null, 2).substring(0, 500);
+                con.classList.add('success');
+            } catch (e) {
+                con.textContent = '> ERROR: ' + e.message;
+                con.classList.add('error');
+            }
+        }
+        
+        async function createTestSignal() {
+            const con = document.getElementById('apiConsole');
+            con.classList.add('visible');
+            con.className = 'console visible';
+            con.textContent = '> Creating test signal...';
+            
+            try {
+                // Get category
+                const catRes = await fetch('http://localhost:8000/signals/v1/public/terms/categories');
+                const cats = await catRes.json();
+                const subCat = cats.results?.[0]?.sub_categories?.[0]?._links?.self?.href;
+                
+                if (!subCat) throw new Error('Geen categorieën gevonden');
+                
+                const signal = {
+                    text: "Test vanuit Dashboard " + new Date().toLocaleTimeString(),
+                    category: { sub_category: subCat },
+                    location: { geometrie: { type: "Point", coordinates: [4.3984, 52.1568] }},
+                    reporter: { email: "test@example.com", sharing_allowed: true },
+                    incident_date_start: new Date().toISOString()
+                };
+                
+                const res = await fetch('http://localhost:8000/signals/v1/public/signals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(signal)
+                });
+                
+                const data = await res.json();
+                con.textContent = '> SUCCESS! Signal ID: ' + (data.id || data.signal_id) + '\n' + JSON.stringify(data, null, 2).substring(0, 300);
+                con.classList.add('success');
+            } catch (e) {
+                con.textContent = '> ERROR: ' + e.message;
+                con.classList.add('error');
+            }
+        }
+        
+        // Initial check
+        checkAll();
+        setInterval(checkAll, 30000);
+    </script>
+</body>
+</html>
+

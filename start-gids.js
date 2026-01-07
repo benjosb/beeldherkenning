@@ -1,14 +1,25 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { exec, spawn } = require('child_process');
+const { exec } = require('child_process');
 const os = require('os');
 
 const PORT = 3333;
-const ROOT_DIR = "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals";
+// Gebruik de huidige map als root (waar het script gestart wordt)
+const ROOT_DIR = process.cwd(); 
 const FRONTEND_DIR = path.join(ROOT_DIR, "signals-frontend");
 const API_ENV_FILE = path.join(ROOT_DIR, "docker-compose/environments/.api");
 const FRONTEND_CONFIG = path.join(FRONTEND_DIR, "app.json"); 
+
+// Detecteer OS
+const isMac = process.platform === 'darwin';
+const isWsl = (() => {
+    if (process.platform !== 'linux') return false;
+    try {
+        const version = fs.readFileSync('/proc/version', 'utf8').toLowerCase();
+        return version.includes('microsoft') || version.includes('wsl');
+    } catch (e) { return false; }
+})();
 
 // Hulpfunctie om lokaal IP te vinden
 function getLocalIp() {
@@ -133,30 +144,70 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // API: Start Frontend (Normal)
+    // API: Start Frontend
     if (req.url === '/api/start-frontend' && req.method === 'POST') {
         restoreFile(FRONTEND_CONFIG);
         
-        // Versimpelde AppleScript aanroep
-        const cmd = `cd "${FRONTEND_DIR}" && npm start`;
-        const script = `tell application "Terminal" to do script "${cmd}"`;
-        
-        exec(`osascript -e '${script}'`, (error, stdout, stderr) => {
-            // We activeren Terminal ook even apart
-            exec('osascript -e \'tell application "Terminal" to activate\'');
+        if (isMac) {
+            // macOS: Schrijf tijdelijk script om quoting problemen te vermijden
+            const tempScript = path.join(ROOT_DIR, '.tmp-start-frontend.sh');
+            const scriptContent = `#!/bin/bash
+cd "${FRONTEND_DIR}"
+npm start
+`;
+            fs.writeFileSync(tempScript, scriptContent);
+            fs.chmodSync(tempScript, '755');
             
+            // Open script in nieuwe Terminal
+            exec(`open -a Terminal "${tempScript}"`, (error, stdout, stderr) => {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: !error, output: error ? stderr : "Terminal geopend (macOS)" }));
+            });
+        } else if (isWsl) {
+            // WSL: Probeer via cmd.exe een nieuw venster te openen
+            // We gebruiken 'start bash -c ...' om een nieuw venster te forceren
+            // Let op: paden in WSL zijn /home/..., maar Windows snapt dat soms niet direct in 'start'.
+            // Beste optie: open een cmd window dat 'wsl' aanroept.
+            const wslCmd = `cd '${FRONTEND_DIR}' && npm start`;
+            const winCmd = `cmd.exe /c start cmd.exe /k "wsl.exe bash -c \\"${wslCmd}\\""`;
+            
+            exec(winCmd, (error, stdout, stderr) => {
+                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                 res.end(JSON.stringify({ success: !error, output: error ? stderr : "Nieuw Windows Terminal venster geopend (WSL)." }));
+            });
+        } else {
+            // Linux / Andere
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: !error, output: error ? stderr : "Terminal geopend (Localhost modus)" }));
-        });
+            res.end(JSON.stringify({ 
+                success: false, 
+                output: "Kon geen terminal openen op dit OS. Draai handmatig:\n\ncd signals-frontend && npm start" 
+            }));
+        }
         return;
     }
     
     // API: Start Docker
     if (req.url === '/api/start-docker' && req.method === 'POST') {
-        exec('open -a "Docker"', (error, stdout, stderr) => {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: !error, output: "Docker starten..." }));
-        });
+        if (isMac) {
+            exec('open -a "Docker"', (error, stdout, stderr) => {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: !error, output: "Docker starten..." }));
+            });
+        } else if (isWsl) {
+            // In WSL kun je Docker Desktop voor Windows starten via het pad, maar dat is tricky.
+            // We checken gewoon of het draait.
+            exec('docker info', (error, stdout, stderr) => {
+                if (error) {
+                     res.writeHead(200, { 'Content-Type': 'application/json' });
+                     res.end(JSON.stringify({ success: false, output: "Docker lijkt niet te draaien. Start Docker Desktop in Windows." }));
+                } else {
+                     res.writeHead(200, { 'Content-Type': 'application/json' });
+                     res.end(JSON.stringify({ success: true, output: "Docker draait al (via WSL)." }));
+                }
+            });
+        } else {
+             res.end(JSON.stringify({ success: true, output: "Controleer handmatig of Docker draait." }));
+        }
         return;
     }
 
@@ -178,17 +229,11 @@ const server = http.createServer((req, res) => {
             let apiEnv = fs.readFileSync(API_ENV_FILE, 'utf8');
             apiEnv = apiEnv.replace(/localhost/g, ip);
             
-            if (!apiEnv.includes('CORS_ORIGIN_ALLOW_ALL')) {
-                apiEnv += '\nCORS_ORIGIN_ALLOW_ALL=True';
-            }
-            if (!apiEnv.includes('CORS_ALLOW_ALL_ORIGINS')) {
-                apiEnv += '\nCORS_ALLOW_ALL_ORIGINS=True';
-            }
-            if (apiEnv.match(/^ALLOWED_HOSTS=/m)) {
-                apiEnv = apiEnv.replace(/^ALLOWED_HOSTS=.*/m, 'ALLOWED_HOSTS=*');
-            } else {
-                apiEnv += '\nALLOWED_HOSTS=*';
-            }
+            if (!apiEnv.includes('CORS_ORIGIN_ALLOW_ALL')) apiEnv += '\nCORS_ORIGIN_ALLOW_ALL=True';
+            if (!apiEnv.includes('CORS_ALLOW_ALL_ORIGINS')) apiEnv += '\nCORS_ALLOW_ALL_ORIGINS=True';
+            if (apiEnv.match(/^ALLOWED_HOSTS=/m)) apiEnv = apiEnv.replace(/^ALLOWED_HOSTS=.*/m, 'ALLOWED_HOSTS=*');
+            else apiEnv += '\nALLOWED_HOSTS=*';
+            if (!apiEnv.includes('ADMIN_ENABLE_LOCAL_LOGIN')) apiEnv += '\nADMIN_ENABLE_LOCAL_LOGIN=True';
             
             fs.writeFileSync(API_ENV_FILE, apiEnv);
 
@@ -196,19 +241,29 @@ const server = http.createServer((req, res) => {
             exec('docker-compose up -d --no-deps api', { cwd: ROOT_DIR });
 
             // 5. Start Frontend
-            const cmd = `cd "${FRONTEND_DIR}" && npm start -- --host 0.0.0.0 --allowed-hosts all`;
-            const script = `tell application "Terminal" to do script "${cmd}"`;
+            const wslCmd = `cd '${FRONTEND_DIR}' && npm start -- --host 0.0.0.0 --allowed-hosts all`;
             
-            exec(`osascript -e '${script}'`, (error, stdout, stderr) => {
-                exec('osascript -e \'tell application "Terminal" to activate\'');
-                
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ 
-                    success: true, 
-                    ip: ip,
-                    output: `Mobiele modus geactiveerd op IP: ${ip}\nBackend config updated (CORS, Hosts & Auth).\nFrontend start in Terminal.` 
-                }));
-            });
+            if (isMac) {
+                // Schrijf tijdelijk script om quoting problemen te vermijden
+                const tempScript = path.join(ROOT_DIR, '.tmp-start-frontend-mobile.sh');
+                const scriptContent = `#!/bin/bash
+cd "${FRONTEND_DIR}"
+npm start -- --host 0.0.0.0 --allowed-hosts all
+`;
+                fs.writeFileSync(tempScript, scriptContent);
+                fs.chmodSync(tempScript, '755');
+                exec(`open -a Terminal "${tempScript}"`);
+            } else if (isWsl) {
+                const winCmd = `cmd.exe /c start cmd.exe /k "wsl.exe bash -c \\"${wslCmd}\\""`;
+                exec(winCmd);
+            }
+            
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                success: true, 
+                ip: ip,
+                output: `Mobiele modus geactiveerd op IP: ${ip}\nBackend config updated.\nFrontend herstart.` 
+            }));
 
         } catch (e) {
              res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -236,12 +291,67 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Git Save
+    if (req.url === '/api/git-save' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            const { message } = JSON.parse(body || '{}');
+            const commitMsg = message || `Checkpoint ${new Date().toISOString()}`;
+            
+            // 1. Add
+            exec('git add .', { cwd: ROOT_DIR }, (err, stdout, stderr) => {
+                if(err) {
+                    res.writeHead(500); res.end(JSON.stringify({success:false, output: stderr})); return;
+                }
+                // 2. Commit
+                exec(`git commit -m "${commitMsg}"`, { cwd: ROOT_DIR }, (err, stdout, stderr) => {
+                     // 3. Push
+                     exec('git push origin main', { cwd: ROOT_DIR }, (err, stdout, stderr) => {
+                         const output = stdout || stderr;
+                         res.writeHead(200, { 'Content-Type': 'application/json' });
+                         res.end(JSON.stringify({ 
+                             success: !err, 
+                             output: err ? "Commit OK, Push failed:\n" + output : "Succesvol gepusht naar GitHub!"
+                         }));
+                     });
+                });
+            });
+        });
+        return;
+    }
+
+    // STATIC FILE HANDLER
+    const safeExtensions = ['.svg', '.png', '.jpg', '.jpeg', '.css', '.js'];
+    const ext = path.extname(req.url);
+    if (safeExtensions.includes(ext)) {
+        const filePath = path.join(ROOT_DIR, req.url);
+        if (filePath.startsWith(ROOT_DIR) && fs.existsSync(filePath)) {
+            const mimeTypes = {
+                '.svg': 'image/svg+xml',
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.css': 'text/css',
+                '.js': 'text/javascript'
+            };
+            fs.readFile(filePath, (err, data) => {
+                if (!err) {
+                    res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'text/plain' });
+                    res.end(data);
+                } else {
+                    res.writeHead(404); res.end('File not found');
+                }
+            });
+            return;
+        }
+    }
+
     res.writeHead(404);
     res.end('Not found');
 });
 
 server.listen(PORT, () => {
-    console.log(`\n🚀 Opstartgids server draait!`);
+    console.log(`\n🚀 Opstartgids server draait! (OS: ${isMac ? 'macOS' : (isWsl ? 'WSL' : 'Linux')})`);
     console.log(`👉 Ga naar: http://localhost:${PORT}`);
     console.log(`(Druk Ctrl+C om te stoppen)\n`);
 });

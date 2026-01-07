@@ -328,7 +328,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Signalen Dashboard</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="signals-frontend/assets/images/wassenaar-logo.svg" alt="Gemeente Wassenaar" style="height: 50px;">
+                <h1 style="margin: 0;">Signalen Dashboard</h1>
+            </div>
+            <button class="action-btn" style="background: #2d3748; margin: 0; display: inline-block;" onclick="saveToGit()">💾 Save Checkpoint</button>
+        </div>
         <p class="subtitle">Opstartgids & Technische Documentatie</p>
         
         <div class="nav-tabs">
@@ -384,7 +390,7 @@
                 <div id="console2" class="console-output"></div>
                     <div class="command-box">
                         <button class="copy-button" onclick="copyCommand('cmd2')">Kopieer</button>
-                        <pre id="cmd2">cd "/Users/dickbraam/Library/CloudStorage/OneDrive-Persoonlijk/_PROGRAMMEREN_OneDrive/_PROGRAMMEREN/Projecten/signalen/signals"
+                        <pre id="cmd2">cd signals
 docker-compose up -d</pre>
                     </div>
                     <button class="check-button" onclick="completeStep(2, event)">✓ Backend is gestart</button>
@@ -458,8 +464,14 @@ docker-compose up -d</pre>
                         <li id="check5b"><a href="http://localhost:8000/signals/admin/" target="_blank">Admin</a> openen</li>
                     </ul>
                     <div class="warning">
-                        <strong>Problemen met inloggen?</strong><br>
-                        <button class="action-btn" style="background: #e53e3e; margin-top: 10px;" onclick="runAction('create-admin', 5, event)">👤 Maak Admin User (admin/admin)</button>
+                        <strong>Inloggen in Django Admin</strong><br>
+                        <p style="font-size: 0.9em; margin: 5px 0;">
+                            We hebben "Local Login" aangezet zodat je niet via Keycloak hoeft.<br>
+                            1. Ga naar het inlogscherm.<br>
+                            2. Vul in: <code>admin</code> / <code>admin</code>.<br>
+                            3. Zie je geen invulvelden? Ververs de pagina (F5) of klik op "Terug naar inloggen".
+                        </p>
+                        <button class="action-btn" style="background: #e53e3e; margin-top: 10px;" onclick="runAction('create-admin', 5, event)">👤 Reset Admin Wachtwoord</button>
                         <div id="console5" class="console-output"></div>
                     </div>
                     <button class="check-button" onclick="completeStep(5, event)">✓ Alles werkt!</button>
@@ -470,18 +482,29 @@ docker-compose up -d</pre>
             <div class="step" id="step6">
                 <div class="step-header" onclick="toggleStep(6)">
                     <div class="step-number">6</div>
-                    <div class="step-title">🧪 API Tester (Lokaal)</div>
+                    <div class="step-title">🧪 Pilot Simulatie: Camera Auto</div>
                     <div class="toggle-icon">▼</div>
                 </div>
                 <div class="step-content">
+                    <p style="margin-bottom: 15px;">Simuleer dat de scan-auto rondrijdt en meldingen detecteert:</p>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                        <button class="action-btn" onclick="testApi('/signals/v1/public/categories/', 6, event)">📂 Haal Categorieën</button>
-                        <button class="action-btn" style="background: #805ad5;" onclick="createSignalWithPhoto(event)">📸 Test Melding (+Foto)</button>
+                        <button class="action-btn" style="background: #e53e3e;" onclick="simulateScanCar(event, 'Afval')">📸 Detecteer: Zwerfafval</button>
+                        <button class="action-btn" style="background: #d69e2e;" onclick="simulateScanCar(event, 'Tegel')">📸 Detecteer: Losse Tegel</button>
+                        <button class="action-btn" style="background: #3182ce;" onclick="simulateScanCar(event, 'Prullenbak')">📸 Detecteer: Kapotte Bak</button>
                     </div>
+                    
+                    <div class="warning">
+                        <strong>Rol van de Coördinator:</strong><br>
+                        Na het klikken op een knop:<br>
+                        1. Ga naar de <a href="http://localhost:8000/signals/admin/signals/signal/" target="_blank">Admin Meldingenlijst</a>.<br>
+                        2. Je ziet de nieuwe meldingen bovenaan staan.<br>
+                        3. Klik op een ID om de foto te beoordelen en de melding door te zetten (of af te wijzen).
+                    </div>
+
                     <div id="apiResult6" class="console-output" style="max-height: 300px; color: #a0aec0;">
-                        Klik op een knop om te testen...
+                        Klaar voor simulatie...
                     </div>
-                    <button class="check-button" onclick="completeStep(6, event)">✓ API werkt</button>
+                    <button class="check-button" onclick="completeStep(6, event)">✓ Simulatie geslaagd</button>
                 </div>
             </div>
 
@@ -599,15 +622,24 @@ CORS_ORIGIN_ALLOW_ALL=True</pre></div>
             </details>
             
             <details>
-                <summary>4. API Endpoints voor Apps (UrbanVue)</summary>
+                <summary>5. Waar zijn mijn meldingen?</summary>
                 <div class="doc-content">
-                    <p>Als je een externe app wilt koppelen (zoals een camera-app), gebruik je deze endpoints:</p>
-                    <ul>
-                        <li><strong>Base URL:</strong> <code>http://[JOUW-IP]:8000/signals/v1/</code></li>
-                        <li><strong>Melding Maken:</strong> <code>POST /public/signals/</code></li>
-                        <li><strong>Foto Uploaden:</strong> <code>POST /public/signals/{uuid}/attachments/</code></li>
-                        <li><strong>Auth:</strong> Voor publieke meldingen is geen auth nodig. Voor medewerker-acties heb je een Bearer Token nodig via Keycloak.</li>
-                    </ul>
+                    <p>Je hebt meldingen gemaakt, maar waar zie je ze nu?</p>
+                    
+                    <h3>In de Django Admin</h3>
+                    <p>
+                        Alle data staat in de database en is te zien via de Admin interface:<br>
+                        <a href="http://localhost:8000/signals/admin/signals/signal/" target="_blank">Directe link naar Meldingen (Signals)</a>
+                    </p>
+                    <p>
+                        Let op: De Admin is voor <strong>beheer</strong>. Hier zie je de ruwe data, maar het is niet de plek waar behandelaars werken.
+                    </p>
+
+                    <h3>In de Frontend (De Kaart)</h3>
+                    <p>
+                        De Frontend is waar burgers en behandelaars werken. 
+                        Als je een melding hebt gemaakt, zou deze als een stip op de kaart moeten verschijnen (mits de status 'Open' is en je op de juiste locatie kijkt).
+                    </p>
                 </div>
             </details>
         </div>
@@ -659,61 +691,45 @@ CORS_ORIGIN_ALLOW_ALL=True</pre></div>
             }
         }
 
-        async function testApi(endpoint, stepId, event) {
+        async function simulateScanCar(event, type) {
             if (event) event.stopPropagation();
-            const consoleDiv = document.getElementById('apiResult' + stepId);
-            const btn = event.target;
-            
-            btn.classList.add('running');
-            btn.textContent = 'Laden...';
-            consoleDiv.textContent = '> Request versturen...';
+            const consoleDiv = document.getElementById('apiResult6');
             consoleDiv.classList.add('visible');
-
-            try {
-                const response = await fetch(`http://localhost:8000${endpoint}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    consoleDiv.textContent = `> SUCCESS:\n${JSON.stringify(data, null, 2)}`;
-                    consoleDiv.style.color = '#48bb78';
-                } else {
-                    consoleDiv.textContent = `> ERROR: ${response.status}`;
-                    consoleDiv.style.color = '#f56565';
-                }
-            } catch (err) {
-                consoleDiv.textContent = `> NETWORK ERROR: ${err.message}`;
-                consoleDiv.style.color = '#f56565';
-            } finally {
-                btn.classList.remove('running');
-                btn.textContent = 'Opnieuw Testen';
-            }
-        }
-
-        async function createSignalWithPhoto(event) {
-            if (event) event.stopPropagation();
-            const consoleDiv = document.getElementById('apiResult6'); // Nu stap 6
-            consoleDiv.classList.add('visible');
-            consoleDiv.textContent = '> Start test melding...';
+            consoleDiv.textContent = `> 🚗 Scan Auto start rit... zoekt naar ${type}...`;
             
             try {
-                // 1. Categorie ophalen
-                const catResp = await fetch('http://localhost:8000/signals/v1/public/categories/');
-                const cats = await catResp.json();
+                // 1. SUBCATEGORIE ophalen - De API vereist een SUBcategorie, niet hoofdcategorie!
+                // We halen de subcategorieën van "Afval" op
+                const subCatResp = await fetch('http://localhost:8000/signals/v1/public/terms/categories/afval/sub_categories/');
+                
                 let catUrl = null;
                 
-                if(cats.results && cats.results.length > 0) catUrl = cats.results[0].url;
-                else if(Array.isArray(cats) && cats.length > 0) catUrl = cats[0].url;
+                if (subCatResp.ok) {
+                    const subCats = await subCatResp.json();
+                    if (subCats.results && subCats.results.length > 0) {
+                        // Pak een actieve subcategorie (is_active = true)
+                        const activeSub = subCats.results.find(s => s.is_active) || subCats.results[0];
+                        catUrl = activeSub._links.self.href;  // Let op: .href, niet .public!
+                        console.log("Geselecteerde subcategorie:", activeSub.name, catUrl);
+                    }
+                }
                 
-                if(!catUrl) throw new Error("Geen categorieën gevonden. Maak eerst categorieën aan in Admin.");
+                if (!catUrl) throw new Error("Geen subcategorieën gevonden onder 'Afval'. Check Django Admin.");
 
-                // 2. Melding maken
+                // Willekeurige locatie in Amsterdam (rondom Dam)
+                const lat = 52.37 + (Math.random() * 0.01 - 0.005);
+                const lon = 4.89 + (Math.random() * 0.01 - 0.005);
+
+                // 2. Melding data samenstellen
                 const signalData = {
-                    text: "Auto-test melding",
+                    text: `[AUTO-DETECT] Mogelijke overtreding: ${type}. Graag verificatie door coördinator.`,
                     category: { sub_category: catUrl },
-                    location: { geometrie: { type: "Point", coordinates: [4.89, 52.37] } },
-                    reporter: { email: "test@example.com", sharing_allowed: true },
+                    location: { geometrie: { type: "Point", coordinates: [lon, lat] } },
+                    reporter: { email: "scanauto@amsterdam.nl", sharing_allowed: false }, // Robot heeft geen privacy nodig
                     incident_date_start: new Date().toISOString()
                 };
 
+                // 3. Versturen
                 const resp = await fetch('http://localhost:8000/signals/v1/public/signals/', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -723,11 +739,13 @@ CORS_ORIGIN_ALLOW_ALL=True</pre></div>
                 if(!resp.ok) throw new Error(await resp.text());
                 const signal = await resp.json();
                 
-                consoleDiv.textContent = `> SUCCESS! Melding gemaakt: ${signal.id}`;
+                consoleDiv.textContent += `\n> ✅ GEVONDEN! Melding aangemaakt: ${signal.id}`;
+                consoleDiv.textContent += `\n> 📍 Locatie: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                consoleDiv.textContent += `\n> 📝 Status: Nieuw (Wacht op Coördinator)`;
                 consoleDiv.style.color = '#48bb78';
                 
             } catch(e) {
-                consoleDiv.textContent = `> ERROR: ${e.message}`;
+                consoleDiv.textContent = `> ❌ ERROR: ${e.message}`;
                 consoleDiv.style.color = '#f56565';
             }
         }
@@ -741,20 +759,24 @@ CORS_ORIGIN_ALLOW_ALL=True</pre></div>
 
         async function runAction(endpoint, stepId, event, method = 'POST') {
             if (event) event.stopPropagation();
-            const consoleDiv = document.getElementById('console' + stepId) || document.getElementById('consoleStop') || document.getElementById('console6');
+            const consoleDiv = document.getElementById('console' + stepId) || document.getElementById('consoleStop') || document.getElementById('console6') || document.getElementById('console7');
             const btn = event.target;
             
             btn.classList.add('running');
-            consoleDiv.textContent = '> Bezig...';
-            consoleDiv.classList.add('visible');
+            if(consoleDiv) {
+                consoleDiv.textContent = '> Bezig...';
+                consoleDiv.classList.add('visible');
+            }
 
             try {
                 const response = await fetch(`${SERVER_URL}/api/${endpoint}`, { method: method });
                 const data = await response.json();
                 
                 if (data.success || (endpoint === 'mobile-start' && data.ip)) {
-                    consoleDiv.textContent = `> SUCCESS:\n${data.output}`;
-                    consoleDiv.style.color = '#48bb78';
+                    if(consoleDiv) {
+                        consoleDiv.textContent = `> SUCCESS:\n${data.output}`;
+                        consoleDiv.style.color = '#48bb78';
+                    }
                     
                     if (endpoint === 'mobile-start' && data.ip) {
                         const url = `http://${data.ip}:3001`;
@@ -763,14 +785,45 @@ CORS_ORIGIN_ALLOW_ALL=True</pre></div>
                         document.getElementById('qr-container').style.display = 'block';
                     }
                 } else {
-                    consoleDiv.textContent = `> ERROR:\n${data.output}`;
-                    consoleDiv.style.color = '#f56565';
+                    if(consoleDiv) {
+                        consoleDiv.textContent = `> ERROR:\n${data.output}`;
+                        consoleDiv.style.color = '#f56565';
+                    }
                 }
             } catch (err) {
-                consoleDiv.textContent = `> SERVER ERROR: ${err.message}`;
-                consoleDiv.style.color = '#f56565';
+                if(consoleDiv) {
+                    consoleDiv.textContent = `> SERVER ERROR: ${err.message}`;
+                    consoleDiv.style.color = '#f56565';
+                }
             } finally {
                 btn.classList.remove('running');
+            }
+        }
+
+        async function saveToGit() {
+            const msg = prompt("Wat heb je gedaan? (Commit message)", "Checkpoint via Dashboard");
+            if(!msg) return;
+
+            const btn = document.querySelector('button[onclick="saveToGit()"]');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Saving...';
+            
+            try {
+                const response = await fetch(`${SERVER_URL}/api/git-save`, { 
+                    method: 'POST',
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert("✅ Opgeslagen & Gepusht naar GitHub!\n\n" + data.output);
+                } else {
+                    alert("⚠️ Opgeslagen (Lokaal), maar Push mislukt.\nWaarschijnlijk moet je nog inloggen.\n\n" + data.output);
+                }
+            } catch (e) {
+                alert("❌ Error: " + e.message);
+            } finally {
+                btn.textContent = originalText;
             }
         }
     </script>

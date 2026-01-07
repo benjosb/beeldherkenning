@@ -8,4 +8,5 @@ def settings_in_context(request):
         'FEATURE_FLAGS': settings.FEATURE_FLAGS,
         'ORGANIZATION_NAME': settings.ORGANIZATION_NAME,
         'OIDC_RP_CLIENT_ID': settings.OIDC_RP_CLIENT_ID,
+        'ADMIN_ENABLE_LOCAL_LOGIN': settings.ADMIN_ENABLE_LOCAL_LOGIN,
     }

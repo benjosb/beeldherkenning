@@ -12,7 +12,7 @@
 2. [Strategische Aanpak](#2-strategische-aanpak)
 3. [Fase 1: RAPPORTAGE](#3-fase-1-rapportage)
 4. [Fase 2: QUALITY](#4-fase-2-quality)
-5. [Fase 3: MELDINGEN](#5-fase-3-meldingen)
+5. [Fase 3: SIGNALS](#5-fase-3-signals)
 6. [Technische Architectuur](#6-technische-architectuur)
 7. [Kernregistraties](#7-kernregistraties)
 8. [Detectie Types](#8-detectie-types)
@@ -57,7 +57,7 @@ Dit is een **organisatorisch/politiek** probleem, niet een technisch probleem. D
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   FASE 1        │    │   FASE 2        │    │   FASE 3        │
-│   RAPPORTAGE    │ → │   QUALITY       │ → │   MELDINGEN     │
+│   RAPPORTAGE    │ → │   QUALITY       │ → │   SIGNALS       │
 │                 │    │                 │    │                 │
 │   Monitoren     │    │   Kernregistr.  │    │   Automatisch   │
 │   BOR normen    │    │   verbeteren    │    │   meldingen     │
@@ -134,7 +134,7 @@ Net als bij meldingen in Signalen:
 
 ---
 
-## 5. Fase 3: MELDINGEN
+## 5. Fase 3: SIGNALS
 
 ### Doel
 Automatisch meldingen maken in Signalen op basis van de beeldanalyse.
@@ -174,7 +174,7 @@ Automatisch meldingen maken in Signalen op basis van de beeldanalyse.
             ┌────────────────────┼────────────────────┐
             ▼                    ▼                    ▼
 ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
-│  📊 RAPPORTAGE    │  │  🎯 QUALITY       │  │  📋 MELDINGEN     │
+│  📊 RAPPORTAGE    │  │  🎯 QUALITY       │  │  📋 SIGNALS       │
 │  (BI Dashboard)   │  │  (World Model)    │  │  (Signalen API)   │
 │                   │  │                   │  │                   │
 │  • BOR Scores     │  │  • Kernregistr.   │  │  • Auto-melding   │

@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalen Wassenaar - Dashboard Mockup</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Google Fonts - Distinctive choice -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --primary-light: #2d5a8a;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.2);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .nav-tab {
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+        }
+
+        .nav-tab:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+
+        /* Melding List */
+        .melding-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .melding-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .melding-card:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .melding-card.selected {
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .melding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .melding-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .melding-priority {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .priority-normal {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .melding-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .melding-location {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .melding-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .melding-source {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .source-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .source-camera {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+        }
+
+        .source-inwoner {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .map-control-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .map-control-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 500;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 0 16px;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-value.danger { color: var(--danger); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.success { color: var(--success); }
+        .stat-value.info { color: var(--info); }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        .trend-up { color: var(--danger); }
+        .trend-down { color: var(--success); }
+
+        /* Legend */
+        .map-legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 500;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .legend-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.camera { background: var(--info); }
+        .legend-dot.inwoner { background: var(--success); }
+        .legend-dot.high { background: var(--danger); }
+
+        /* Detail Panel (hidden by default) */
+        .detail-panel {
+            position: absolute;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            z-index: 600;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-panel.open {
+            right: 0;
+        }
+
+        .detail-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-close {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .detail-close:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border: 2px dashed var(--border);
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .detail-actions {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .action-btn.primary {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .action-btn.secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            z-index: 500;
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .view-btn.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        /* Rapportage View */
+        .rapportage-view {
+            display: none;
+            padding: 24px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .rapportage-view.active {
+            display: block;
+        }
+
+        .report-header {
+            margin-bottom: 24px;
+        }
+
+        .report-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .report-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .report-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .report-card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .report-card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .report-card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .score-bar {
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .bor-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .bor-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .bor-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+        }
+
+        .bor-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .bor-score {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .bor-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Mockup Banner */
+        .mockup-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            color: var(--bg-dark);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            z-index: 2000;
+        }
+
+        .mockup-banner span {
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 280px;
+            }
+            .report-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .stats-panel {
+                flex-wrap: wrap;
+            }
+            .stat-item {
+                flex: 1 1 45%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 12px;
+                margin-bottom: 12px;
+            }
+        }
+
+        /* Leaflet Custom Styling */
+        .leaflet-container {
+            background: var(--bg-dark);
+        }
+
+        .custom-marker {
+            background: var(--info);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .custom-marker.high {
+            background: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .custom-marker.camera {
+            background: var(--info);
+        }
+
+        .custom-marker.inwoner {
+            background: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .leaflet-popup-tip {
+            background: var(--bg-card);
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 16px;
+        }
+
+        .popup-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .popup-location {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <div>
+                    <div class="logo-text">Signalen Wassenaar</div>
+                    <div class="logo-subtitle">Beeldherkenning Dashboard</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchMainView('kaart')">🗺️ Kaart</button>
+            <button class="nav-tab" onclick="switchMainView('rapportage')">📊 Rapportage</button>
+            <button class="nav-tab" onclick="switchMainView('quality')">🎯 Quality</button>
+        </nav>
+
+        <div class="header-right">
+            <div class="user-badge">
+                <div class="user-avatar">JB</div>
+                <span>Jan Beheerder</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Filters</div>
+                <div class="filter-row">
+                    <button class="filter-btn active">Alle</button>
+                    <button class="filter-btn">📷 Camera</button>
+                    <button class="filter-btn">👤 Inwoner</button>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-btn">🔴 Hoog</button>
+                    <button class="filter-btn">🟠 Normaal</button>
+                    <button class="filter-btn">🟢 Laag</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" placeholder="Zoek op straat, ID...">
+                </div>
+            </div>
+
+            <div class="melding-list">
+                <!-- Melding Cards -->
+                <div class="melding-card selected" onclick="selectMelding(this, 1)">
+                    <div class="melding-header">
+                        <span class="melding-id">#SIG-2026-0142</span>
+                        <span class="melding-priority priority-high">Hoog</span>
+                    </div>
+                    <div class="melding-title">Losliggende stoeptegel</div>
+                    <div class="melding-location">📍 Langstraat 45, Wassenaar</div>
+                    <div class="melding-meta">
+                        <div class="melding-source">
+                            <span class="source-badge source-camera">📷 Camera</span>
+                        </div>
+                        <span>2 min geleden</span>
+                    </div>
+                </div>
+
+                <div class="melding-card" onclick="selectMelding(this, 2)">
+                    <div class="melding-header">
+                        <span class="melding-id">#SIG-2026-0141</span>
+                        <span class="melding-priority priority-normal">Normaal</span>
+                    </div>
+                    <div class="melding-title">Bijplaatsing bij ORAC</div>
+                    <div class="melding-location">📍 Rijksstraatweg 102</div>
+                    <div class="melding-meta">
+                        <div class="melding-source">
+                            <span class="source-badge source-camera">📷 Camera</span>
+                        </div>
+                        <span>15 min geleden</span>
+                    </div>
+                </div>
+
+                <div class="melding-card" onclick="selectMelding(this, 3)">
+                    <div class="melding-header">
+                        <span class="melding-id">#SIG-2026-0140</span>
+                        <span class="melding-priority priority-low">Laag</span>
+                    </div>
+                    <div class="melding-title">Zwerfafval speeltuin</div>
+                    <div class="melding-location">📍 Park Oud Wassenaar</div>
+                    <div class="melding-meta">
+                        <div class="melding-source">
+                            <span class="source-badge source-inwoner">👤 Inwoner</span>
+                        </div>
+                        <span>32 min geleden</span>
+                    </div>
+                </div>
+
+                <div class="melding-card" onclick="selectMelding(this, 4)">
+                    <div class="melding-header">
+                        <span class="melding-id">#SIG-2026-0139</span>
+                        <span class="melding-priority priority-high">Hoog</span>
+                    </div>
+                    <div class="melding-title">Laaghangend groen (zichtbeperking)</div>
+                    <div class="melding-location">📍 Schouwweg 12</div>
+                    <div class="melding-meta">
+                        <div class="melding-source">
+                            <span class="source-badge source-camera">📷 Camera</span>
+                        </div>
+                        <span>1 uur geleden</span>
+                    </div>
+                </div>
+
+                <div class="melding-card" onclick="selectMelding(this, 5)">
+                    <div class="melding-header">
+                        <span class="melding-id">#SIG-2026-0138</span>
+                        <span class="melding-priority priority-normal">Normaal</span>
+                    </div>
+                    <div class="melding-title">Lantaarnpaal scheef</div>
+                    <div class="melding-location">📍 Duinweg 78</div>
+                    <div class="melding-meta">
+                        <div class="melding-source">
+                            <span class="source-badge source-camera">📷 Camera</span>
+                        </div>
+                        <span>2 uur geleden</span>
+                    </div>
+                </div>
+
+                <div class="melding-card" onclick="selectMelding(this, 6)">
+                    <div class="melding-header">
+                        <span class="melding-id">#SIG-2026-0137</span>
+                        <span class="melding-priority priority-low">Laag</span>
+                    </div>
+                    <div class="melding-title">Graffiti op bankje</div>
+                    <div class="melding-location">📍 Hofcampweg 23</div>
+                    <div class="melding-meta">
+                        <div class="melding-source">
+                            <span class="source-badge source-inwoner">👤 Inwoner</span>
+                        </div>
+                        <span>3 uur geleden</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Map View -->
+        <main class="map-container" id="kaart-view">
+            <div id="map"></div>
+
+            <!-- Map Legend -->
+            <div class="map-legend">
+                <div class="legend-title">Legenda</div>
+                <div class="legend-item">
+                    <div class="legend-dot camera"></div>
+                    <span>Camera detectie</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot inwoner"></div>
+                    <span>Inwoner melding</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot high"></div>
+                    <span>Hoge prioriteit</span>
+                </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="view-btn active">Cluster</button>
+                <button class="view-btn">Heatmap</button>
+                <button class="view-btn">Routes</button>
+            </div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" title="Zoom in">+</button>
+                <button class="map-control-btn" title="Zoom out">−</button>
+                <button class="map-control-btn" title="Mijn locatie">📍</button>
+                <button class="map-control-btn" title="Volledig scherm">⛶</button>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <div class="stat-value danger">23</div>
+                    <div class="stat-label">Open meldingen</div>
+                    <div class="stat-trend trend-up">↑ 5 vandaag</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value warning">8</div>
+                    <div class="stat-label">In behandeling</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value success">156</div>
+                    <div class="stat-label">Afgehandeld (7d)</div>
+                    <div class="stat-trend trend-down">↓ 12% t.o.v. vorige week</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value info">78%</div>
+                    <div class="stat-label">Camera detecties</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2.4u</div>
+                    <div class="stat-label">Gem. responstijd</div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="detail-panel" id="detail-panel">
+                <div class="detail-header">
+                    <div>
+                        <div class="melding-id">#SIG-2026-0142</div>
+                        <div class="melding-title" style="margin-top: 4px;">Losliggende stoeptegel</div>
+                    </div>
+                    <button class="detail-close" onclick="closeDetail()">×</button>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-image">
+                        📷 Camera foto (AI geanalyseerd)
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-section-title">Locatie</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Adres</span>
+                            <span class="detail-value">Langstraat 45</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Wijk</span>
+                            <span class="detail-value">Wassenaar Centrum</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Coördinaten</span>
+                            <span class="detail-value">52.1461, 4.4012</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-section-title">Detectie</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Bron</span>
+                            <span class="detail-value">📷 Camera Auto #3</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Confidence</span>
+                            <span class="detail-value">94%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">Stoeptegel verzakt</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Categorie</span>
+                            <span class="detail-value">Veiligheid</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="detail-section-title">Status</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Aangemaakt</span>
+                            <span class="detail-value">08-01-2026 14:32</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Prioriteit</span>
+                            <span class="detail-value" style="color: var(--danger);">Hoog (struikelgevaar)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Toegewezen</span>
+                            <span class="detail-value">Team Wegen</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-actions">
+                    <button class="action-btn secondary">❌ Afwijzen</button>
+                    <button class="action-btn primary">✓ Goedkeuren</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Rapportage View -->
+        <main class="rapportage-view" id="rapportage-view">
+            <div class="report-header">
+                <h1 class="report-title">📊 BOR Rapportage - Wassenaar</h1>
+                <p class="report-subtitle">Beeldkwaliteit openbare ruimte - Week 2, 2026</p>
+            </div>
+
+            <!-- BOR Scores -->
+            <div class="bor-section">
+                <h2 class="bor-title">🎯 BOR Scores - "Schoon, Heel en Veilig"</h2>
+                <div class="bor-grid">
+                    <div class="bor-item">
+                        <div class="bor-icon">🧹</div>
+                        <div class="bor-score" style="color: var(--success);">8.2</div>
+                        <div class="bor-label">SCHOON</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 82%; background: var(--success);"></div>
+                        </div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">🔧</div>
+                        <div class="bor-score" style="color: var(--warning);">7.1</div>
+                        <div class="bor-label">HEEL</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 71%; background: var(--warning);"></div>
+                        </div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">⚠️</div>
+                        <div class="bor-score" style="color: var(--danger);">6.8</div>
+                        <div class="bor-label">VEILIG</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 68%; background: var(--danger);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="report-grid">
+                <div class="report-card">
+                    <div class="report-card-title">📷 Camera Scans</div>
+                    <div class="report-card-value" style="color: var(--info);">12,847</div>
+                    <div class="report-card-subtitle">Foto's deze week geanalyseerd</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-title">🚗 Gereden KM</div>
+                    <div class="report-card-value" style="color: var(--success);">342</div>
+                    <div class="report-card-subtitle">Door 4 voertuigen</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-title">🔍 Detecties</div>
+                    <div class="report-card-value" style="color: var(--warning);">89</div>
+                    <div class="report-card-subtitle">Afwijkingen gevonden</div>
+                </div>
+            </div>
+
+            <!-- Detections by Type -->
+            <div class="bor-section">
+                <h2 class="bor-title">📋 Detecties per Type</h2>
+                <div class="bor-grid">
+                    <div class="bor-item">
+                        <div class="bor-icon">🧱</div>
+                        <div class="bor-score">23</div>
+                        <div class="bor-label">Stoeptegels</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">🌿</div>
+                        <div class="bor-score">31</div>
+                        <div class="bor-label">Laaghangend groen</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">🗑️</div>
+                        <div class="bor-score">18</div>
+                        <div class="bor-label">Zwerfafval</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">📦</div>
+                        <div class="bor-score">12</div>
+                        <div class="bor-label">Bijplaatsingen</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">💡</div>
+                        <div class="bor-score">3</div>
+                        <div class="bor-label">OVL defect</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">💨</div>
+                        <div class="bor-score">2</div>
+                        <div class="bor-label">Lachgaspatronen</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Quality View (placeholder) -->
+        <main class="rapportage-view" id="quality-view">
+            <div class="report-header">
+                <h1 class="report-title">🎯 Quality - Kernregistraties</h1>
+                <p class="report-subtitle">Datakwaliteit verbetering door foto-matching</p>
+            </div>
+
+            <div class="bor-section">
+                <h2 class="bor-title">💡 OVL (Openbare Verlichting) - Pilot</h2>
+                <div class="report-grid" style="margin-top: 20px;">
+                    <div class="report-card">
+                        <div class="report-card-title">📍 Lantaarnpalen in register</div>
+                        <div class="report-card-value" style="color: var(--info);">2,847</div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-card-title">📷 Gedetecteerd op foto</div>
+                        <div class="report-card-value" style="color: var(--success);">2,891</div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-card-title">⚠️ Discrepanties</div>
+                        <div class="report-card-value" style="color: var(--warning);">67</div>
+                        <div class="report-card-subtitle">Te verifiëren door gegevensbeheerder</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bor-section">
+                <h2 class="bor-title">📊 Discrepantie Types</h2>
+                <div class="bor-grid">
+                    <div class="bor-item">
+                        <div class="bor-icon">❓</div>
+                        <div class="bor-score">44</div>
+                        <div class="bor-label">Op foto, niet in register</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">👻</div>
+                        <div class="bor-score">18</div>
+                        <div class="bor-label">In register, niet op foto</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">📍</div>
+                        <div class="bor-score">5</div>
+                        <div class="bor-label">Locatie afwijking >5m</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mockup Banner -->
+    <div class="mockup-banner">
+        <span>🎨</span>
+        <span>Dit is een MOCKUP - Interactieve demo van het toekomstige Signalen Wassenaar Dashboard</span>
+        <span>🎨</span>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Initialize map centered on Wassenaar
+        const map = L.map('map', {
+            zoomControl: false
+        }).setView([52.1453, 4.3971], 14);
+
+        // Dark map tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap, © CartoDB',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Custom icon function
+        function createMarkerIcon(type, priority) {
+            const color = priority === 'high' ? '#ef4444' : (type === 'camera' ? '#3b82f6' : '#10b981');
+            const size = priority === 'high' ? 16 : 12;
+            
+            return L.divIcon({
+                className: 'custom-marker-wrapper',
+                html: `<div class="custom-marker ${type} ${priority === 'high' ? 'high' : ''}" style="width: ${size}px; height: ${size}px; background: ${color}; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2]
+            });
+        }
+
+        // Sample meldingen data for Wassenaar
+        const meldingen = [
+            { id: 1, lat: 52.1461, lng: 4.4012, title: "Losliggende stoeptegel", location: "Langstraat 45", type: "camera", priority: "high" },
+            { id: 2, lat: 52.1438, lng: 4.3945, title: "Bijplaatsing bij ORAC", location: "Rijksstraatweg 102", type: "camera", priority: "normal" },
+            { id: 3, lat: 52.1485, lng: 4.3892, title: "Zwerfafval speeltuin", location: "Park Oud Wassenaar", type: "inwoner", priority: "low" },
+            { id: 4, lat: 52.1402, lng: 4.4056, title: "Laaghangend groen", location: "Schouwweg 12", type: "camera", priority: "high" },
+            { id: 5, lat: 52.1512, lng: 4.3801, title: "Lantaarnpaal scheef", location: "Duinweg 78", type: "camera", priority: "normal" },
+            { id: 6, lat: 52.1378, lng: 4.3998, title: "Graffiti op bankje", location: "Hofcampweg 23", type: "inwoner", priority: "low" },
+            { id: 7, lat: 52.1495, lng: 4.4102, title: "Gat in wegdek", location: "Wassenaarseslag", type: "camera", priority: "high" },
+            { id: 8, lat: 52.1423, lng: 4.3855, title: "Volle prullenbak", location: "Plein 1813", type: "camera", priority: "normal" },
+            { id: 9, lat: 52.1467, lng: 4.3778, title: "Kapotte bank", location: "Landgoed De Horsten", type: "inwoner", priority: "low" },
+            { id: 10, lat: 52.1389, lng: 4.4123, title: "Lachgaspatronen", location: "Parkeerplaats strand", type: "camera", priority: "normal" },
+        ];
+
+        // Add markers to map
+        meldingen.forEach(m => {
+            const marker = L.marker([m.lat, m.lng], {
+                icon: createMarkerIcon(m.type, m.priority)
+            }).addTo(map);
+
+            marker.bindPopup(`
+                <div class="popup-title">${m.title}</div>
+                <div class="popup-location">📍 ${m.location}</div>
+            `);
+        });
+
+        // UI Functions
+        function selectMelding(card, id) {
+            document.querySelectorAll('.melding-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            const melding = meldingen.find(m => m.id === id);
+            if (melding) {
+                map.flyTo([melding.lat, melding.lng], 17);
+            }
+            
+            document.getElementById('detail-panel').classList.add('open');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-panel').classList.remove('open');
+        }
+
+        function switchMainView(view) {
+            // Update tabs
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Hide all views
+            document.getElementById('kaart-view').style.display = 'none';
+            document.getElementById('rapportage-view').style.display = 'none';
+            document.getElementById('quality-view').style.display = 'none';
+            document.querySelector('.sidebar').style.display = 'none';
+
+            // Show selected view
+            if (view === 'kaart') {
+                document.getElementById('kaart-view').style.display = 'block';
+                document.querySelector('.sidebar').style.display = 'flex';
+                map.invalidateSize();
+            } else if (view === 'rapportage') {
+                document.getElementById('rapportage-view').style.display = 'block';
+                document.getElementById('rapportage-view').classList.add('active');
+            } else if (view === 'quality') {
+                document.getElementById('quality-view').style.display = 'block';
+                document.getElementById('quality-view').classList.add('active');
+            }
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!this.classList.contains('active')) {
+                    // For demo, just toggle active state
+                    this.classList.toggle('active');
+                }
+            });
+        });
+
+        // View toggle buttons
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

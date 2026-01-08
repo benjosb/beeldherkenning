@@ -245,8 +245,16 @@ ALLOWED_HOSTS=*                  # Accepteer alle hosts
 ## 7. Bekende problemen & Oplossingen
 
 ### Probleem: Logo niet zichtbaar
-**Oorzaak:** Verkeerd pad in `app.json`  
-**Oplossing:** Gebruik `/assets/images/wassenaar-logo.svg` (met leading slash)
+**Oorzaak:** De frontend gebruikt een merge van `app.base.json` + `app.json`. Als alleen `app.json` is aangepast maar `app.base.json` nog het Amsterdam logo heeft, kan de cache de oude waarde vasthouden.
+
+**Oplossing:**  
+1. Pas **beide** bestanden aan:
+   - `signals-frontend/app.json` → `"url": "/assets/images/wassenaar-logo.svg"`
+   - `signals-frontend/app.base.json` → `"url": "/assets/images/wassenaar-logo.svg"`
+2. **Herstart de frontend** (Ctrl+C en opnieuw `npm start`)
+3. Het logo bestand moet bestaan in: `signals-frontend/assets/images/wassenaar-logo.svg`
+
+**Let op:** Na elke wijziging aan de config bestanden moet de frontend opnieuw worden gestart!
 
 ### Probleem: "Open Terminal & Start" werkt niet (macOS)
 **Oorzaak:** AppleScript quoting issues met lange paden (OneDrive)  

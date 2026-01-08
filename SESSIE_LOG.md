@@ -4,6 +4,33 @@ Dit bestand houdt bij wat er per sessie is gedaan.
 
 ---
 
+## Sessie: 8 januari 2026
+
+### Wat we vandaag hebben gedaan:
+
+1. **Logo probleem definitief opgelost**
+   - Oorzaak: `app.base.json` had nog `amsterdam-logo.svg`
+   - Oplossing: Beide config bestanden aangepast (`app.json` én `app.base.json`)
+   - Frontend moet herstart worden na config wijzigingen!
+
+2. **Beeldherkenning Roadmap toegevoegd** (gisteren laat)
+   - Nieuwe tab in opstartgids: "🚀 Beeldherkenning Roadmap"
+   - 3 fasen: RAPPORTAGE → QUALITY → SIGNALS
+   - `BEELDHERKENNING_ROADMAP.md` document gemaakt
+
+3. **Mockup Dashboard gemaakt** (`mockup-dashboard.html`)
+   - 🗺️ Kaart view met meldingen markers (Wassenaar)
+   - 📊 Rapportage view met BOR scores (Schoon/Heel/Veilig)
+   - 🎯 Quality view met OVL discrepanties kaart
+   - Donker thema, interactief, professionele uitstraling
+
+### Technische notities:
+- Frontend config: `app.base.json` + `app.json` worden gemerged (lodash merge)
+- Logo pad: `/assets/images/wassenaar-logo.svg`
+- Webpack kopieert `assets/` folder naar build output
+
+---
+
 ## Sessie: 7 januari 2026
 
 ### Wat we vandaag hebben gedaan:

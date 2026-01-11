@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoe werkt Signalen? - Simpele Uitleg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #4299e1;
+            --green: #48bb78;
+            --orange: #ed8936;
+            --purple: #9f7aea;
+            --pink: #ed64a6;
+            --yellow: #ecc94b;
+            --red: #fc8181;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #e0f2fe 0%, #fef3c7 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #718096;
+        }
+
+        /* Story Cards */
+        .story-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+        }
+
+        .story-card.blue::before { background: var(--blue); }
+        .story-card.green::before { background: var(--green); }
+        .story-card.orange::before { background: var(--orange); }
+        .story-card.purple::before { background: var(--purple); }
+        .story-card.pink::before { background: var(--pink); }
+        .story-card.yellow::before { background: var(--yellow); }
+
+        .story-card h2 {
+            font-size: 1.6rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .story-card p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+
+        /* Illustration boxes */
+        .illustration {
+            background: #f7fafc;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .emoji-row {
+            font-size: 4rem;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .arrow {
+            font-size: 2.5rem;
+            color: var(--blue);
+        }
+
+        /* Building blocks */
+        .building {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 10px;
+        }
+
+        .building-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .building-name {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+
+        .building-job {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        /* Flow diagram */
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .flow-number {
+            width: 50px;
+            height: 50px;
+            background: var(--blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .flow-number.green { background: var(--green); }
+        .flow-number.orange { background: var(--orange); }
+        .flow-number.purple { background: var(--purple); }
+        .flow-number.pink { background: var(--pink); }
+
+        .flow-emoji {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .flow-text {
+            flex: 1;
+        }
+
+        .flow-text strong {
+            color: #2d3748;
+        }
+
+        /* Comparison */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-box {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .comparison-box.real {
+            border: 3px solid var(--green);
+        }
+
+        .comparison-box.digital {
+            border: 3px solid var(--blue);
+        }
+
+        .comparison-box h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .comparison-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        /* Fun fact */
+        .fun-fact {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 6px solid var(--yellow);
+        }
+
+        .fun-fact h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fun-fact p {
+            color: #78350f;
+            margin: 0;
+        }
+
+        /* City illustration */
+        .city {
+            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #228B22 100%);
+            border-radius: 20px;
+            padding: 40px 20px 20px;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .city::before {
+            content: '☀️';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+        }
+
+        .house {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .house-roof {
+            width: 0;
+            height: 0;
+            border-left: 35px solid transparent;
+            border-right: 35px solid transparent;
+            border-bottom: 30px solid #c0392b;
+        }
+
+        .house-body {
+            width: 60px;
+            height: 50px;
+            background: #f39c12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .house-door {
+            width: 20px;
+            height: 30px;
+            background: #8B4513;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .building-tall {
+            width: 50px;
+            height: 100px;
+            background: #3498db;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 5px;
+            gap: 3px;
+        }
+
+        .building-tall .window {
+            width: 12px;
+            height: 12px;
+            background: #f1c40f;
+        }
+
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tree-top {
+            width: 40px;
+            height: 50px;
+            background: #27ae60;
+            border-radius: 50% 50% 50% 50%;
+        }
+
+        .tree-trunk {
+            width: 10px;
+            height: 20px;
+            background: #8B4513;
+        }
+
+        /* Problem spot */
+        .problem-spot {
+            position: absolute;
+            bottom: 70px;
+            left: 30%;
+        }
+
+        .problem-spot::after {
+            content: '⚠️';
+            font-size: 2rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .emoji-row {
+                font-size: 2.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="signalen-portal.html" class="back-link">← Terug naar Portal</a>
+
+        <div class="header">
+            <h1>🏙️ Hoe werkt <span>Signalen</span>?</h1>
+            <p>Een simpele uitleg voor iedereen!</p>
+        </div>
+
+        <!-- WAT IS HET -->
+        <div class="story-card blue">
+            <h2>📋 Wat is Signalen?</h2>
+            <p>
+                Stel je voor: je loopt door je wijk en je ziet een <strong>kapotte lantaarnpaal</strong>, 
+                een <strong>gat in de stoep</strong>, of een berg <strong>zwerfafval</strong>. 
+                Vervelend! Maar hoe laat je de gemeente weten dat ze dit moeten repareren?
+            </p>
+            <p>
+                Daar is <strong>Signalen</strong> voor! Het is een soort <strong>digitale brievenbus</strong> 
+                waar je meldingen kunt insturen. De gemeente ontvangt je bericht en gaat het probleem oplossen.
+            </p>
+
+            <div class="illustration">
+                <div class="emoji-row">
+                    <span>👀</span>
+                    <span class="arrow">➜</span>
+                    <span>📱</span>
+                    <span class="arrow">➜</span>
+                    <span>🏛️</span>
+                    <span class="arrow">➜</span>
+                    <span>🔧</span>
+                </div>
+                <p><em>Je ziet iets → Je stuurt een melding → De gemeente ontvangt het → Het wordt gerepareerd!</em></p>
+            </div>
+        </div>
+
+        <!-- DE REIS VAN EEN MELDING -->
+        <div class="story-card green">
+            <h2>🚀 De reis van een melding</h2>
+            <p>Wat gebeurt er eigenlijk als je een melding maakt? Laten we de reis volgen!</p>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="flow-number">1</div>
+                    <div class="flow-emoji">👤📱</div>
+                    <div class="flow-text">
+                        <strong>Jij maakt een melding</strong><br>
+                        Je opent de website, kiest een locatie op de kaart, beschrijft het probleem en maakt misschien een foto.
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number green">2</div>
+                    <div class="flow-emoji">🐍</div>
+                    <div class="flow-text">
+                        <strong>De "Slimme Assistent" ontvangt het</strong><br>
+                        Een computerprogramma (Django) checkt of alles klopt: bestaat het adres? Is er een categorie gekozen?
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number orange">3</div>
+                    <div class="flow-emoji">🗄️</div>
+                    <div class="flow-text">
+                        <strong>Opslaan in de "Digitale Archiefkast"</strong><br>
+                        Je melding wordt veilig opgeslagen in een database. Dat is als een hele grote, geordende archiefkast.
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number purple">4</div>
+                    <div class="flow-emoji">📧</div>
+                    <div class="flow-text">
+                        <strong>Je krijgt een bevestiging</strong><br>
+                        Er wordt automatisch een e-mail naar je gestuurd: "Bedankt voor je melding!"
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number pink">5</div>
+                    <div class="flow-emoji">👷</div>
+                    <div class="flow-text">
+                        <strong>De juiste persoon krijgt de melding</strong><br>
+                        Is het een kapotte lamp? Dan gaat het naar team Verlichting. Afval? Naar team Schoonmaak!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DE ONDERDELEN -->
+        <div class="story-card orange">
+            <h2>🧱 De bouwstenen van Signalen</h2>
+            <p>
+                Signalen bestaat uit verschillende onderdelen die samenwerken. 
+                Vergelijk het met een <strong>fabriek</strong> waar elk onderdeel een eigen taak heeft:
+            </p>
+
+            <div class="illustration">
+                <div class="building">
+                    <div class="building-icon">🐍</div>
+                    <div class="building-name">Django</div>
+                    <div class="building-job">De Chef</div>
+                </div>
+                <div class="building">
+                    <div class="building-icon">🗄️</div>
+                    <div class="building-name">Database</div>
+                    <div class="building-job">Het Geheugen</div>
+                </div>
+                <div class="building">
+                    <div class="building-icon">🔍</div>
+                    <div class="building-name">Zoekmotor</div>
+                    <div class="building-job">De Zoeker</div>
+                </div>
+                <div class="building">
+                    <div class="building-icon">🐰</div>
+                    <div class="building-name">RabbitMQ</div>
+                    <div class="building-job">De Postbode</div>
+                </div>
+                <div class="building">
+                    <div class="building-icon">🥬</div>
+                    <div class="building-name">Celery</div>
+                    <div class="building-job">De Werker</div>
+                </div>
+                <div class="building">
+                    <div class="building-icon">🔑</div>
+                    <div class="building-name">Keycloak</div>
+                    <div class="building-job">De Bewaker</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UITLEG PER ONDERDEEL -->
+        <div class="story-card purple">
+            <h2>🐍 Django - De Chef-kok</h2>
+            <p>
+                Django is als de <strong>chef-kok in een restaurant</strong>. 
+                Als jij een melding maakt, neemt Django die aan (alsof je een bestelling plaatst). 
+                Django controleert of alles klopt en stuurt de melding naar de juiste plek.
+            </p>
+            
+            <div class="comparison">
+                <div class="comparison-box real">
+                    <h4>🍳 In het echt</h4>
+                    <div class="comparison-icon">👨‍🍳</div>
+                    <p>Een chef-kok neemt je bestelling aan en maakt je eten</p>
+                </div>
+                <div class="comparison-box digital">
+                    <h4>💻 Bij Signalen</h4>
+                    <div class="comparison-icon">🐍</div>
+                    <p>Django neemt je melding aan en verwerkt die</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="story-card yellow">
+            <h2>🗄️ Database - Het Supergeheugen</h2>
+            <p>
+                De database is als een <strong>gigantische archiefkast</strong> die NOOIT iets vergeet. 
+                Elke melding wordt hier netjes opgeslagen met alle details: waar is het, wat is het probleem, 
+                wanneer is het gemeld, en welke foto's erbij horen.
+            </p>
+
+            <div class="fun-fact">
+                <h4>💡 Wist je dat?</h4>
+                <p>
+                    De database van Amsterdam heeft meer dan <strong>1 miljoen meldingen</strong> opgeslagen! 
+                    En je kunt ze allemaal terugvinden in een fractie van een seconde.
+                </p>
+            </div>
+        </div>
+
+        <div class="story-card blue">
+            <h2>🔍 Elasticsearch - De Super-zoeker</h2>
+            <p>
+                Stel je voor dat je iets zoekt in een bibliotheek met miljoenen boeken. 
+                Dat zou dagen duren! Elasticsearch is als een <strong>superheld met röntgenogen</strong> 
+                die in een milliseconde het juiste boek kan vinden.
+            </p>
+            <p>
+                Als een medewerker zoekt op "kapotte lantaarnpaal Schoolstraat", vindt Elasticsearch 
+                binnen een oogwenk alle meldingen die daarmee te maken hebben.
+            </p>
+
+            <div class="illustration">
+                <div class="emoji-row">
+                    <span>🔍</span>
+                    <span style="font-size: 2rem;">zoekt in</span>
+                    <span>📚📚📚📚📚</span>
+                    <span class="arrow">➜</span>
+                    <span>✅</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="story-card pink">
+            <h2>🐰 RabbitMQ - De Postbode</h2>
+            <p>
+                RabbitMQ is als een <strong>supersnelle postbode</strong>. 
+                Sommige taken kosten even tijd (zoals een e-mail versturen). 
+                In plaats van te wachten, geeft Django de taak aan RabbitMQ: 
+                "Hé, kun jij dit even bezorgen?"
+            </p>
+            <p>
+                RabbitMQ stopt het in een rij (een "wachtrij") en zorgt dat alles netjes wordt afgeleverd.
+            </p>
+
+            <div class="illustration">
+                <div class="emoji-row">
+                    <span>📬</span>
+                    <span class="arrow">➜</span>
+                    <span>🐰</span>
+                    <span class="arrow">➜</span>
+                    <span>📫📫📫</span>
+                </div>
+                <p><em>Brieven komen binnen → Konijn sorteert ze → Worden één voor één bezorgd</em></p>
+            </div>
+        </div>
+
+        <div class="story-card green">
+            <h2>🥬 Celery - De Werkmieren</h2>
+            <p>
+                Celery is als een <strong>leger van werkmieren</strong>. 
+                Ze pakken alle taken uit de wachtrij van RabbitMQ en voeren ze uit:
+            </p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>📧 E-mails versturen naar melders</li>
+                <li>🔍 Meldingen toevoegen aan de zoekmotor</li>
+                <li>🗑️ Oude gegevens opruimen</li>
+                <li>📊 Rapporten maken</li>
+            </ul>
+
+            <div class="fun-fact">
+                <h4>🐜 Waarom "Celery" (selderij)?</h4>
+                <p>
+                    De makers vonden het grappig om het programma te vernoemen naar een groente. 
+                    Net zoals selderij goed is voor je gezondheid, is Celery goed voor de gezondheid van het systeem!
+                </p>
+            </div>
+        </div>
+
+        <div class="story-card orange">
+            <h2>🔑 Keycloak - De Bewaker</h2>
+            <p>
+                Keycloak is als de <strong>beveiliger bij de ingang</strong>. 
+                Niet iedereen mag zomaar bij alle meldingen. Keycloak controleert:
+            </p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>🪪 Wie ben jij? (inloggen met gebruikersnaam en wachtwoord)</li>
+                <li>✅ Wat mag jij doen? (sommige mensen mogen alleen kijken, anderen mogen ook aanpassen)</li>
+            </ul>
+
+            <div class="illustration">
+                <div class="emoji-row">
+                    <span>👤</span>
+                    <span class="arrow">➜</span>
+                    <span>🔑</span>
+                    <span class="arrow">➜</span>
+                    <span>✅ of ❌</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOE HET SAMENWERKT -->
+        <div class="story-card purple">
+            <h2>🎭 Hoe werkt het allemaal samen?</h2>
+            <p>Laten we het hele plaatje bekijken met een voorbeeld:</p>
+
+            <div class="city">
+                <div class="tree">
+                    <div class="tree-top"></div>
+                    <div class="tree-trunk"></div>
+                </div>
+                <div class="house">
+                    <div class="house-roof"></div>
+                    <div class="house-body"><div class="house-door"></div></div>
+                </div>
+                <div class="building-tall">
+                    <div class="window"></div><div class="window"></div><div class="window"></div>
+                    <div class="window"></div><div class="window"></div><div class="window"></div>
+                    <div class="window"></div><div class="window"></div><div class="window"></div>
+                </div>
+                <div class="tree">
+                    <div class="tree-top"></div>
+                    <div class="tree-trunk"></div>
+                </div>
+                <div class="problem-spot"></div>
+            </div>
+
+            <div class="flow-diagram" style="margin-top: 30px;">
+                <div class="flow-step">
+                    <div class="flow-emoji">👧</div>
+                    <div class="flow-text">
+                        <strong>Emma ziet een kapotte stoeptegel</strong><br>
+                        Ze struikelt bijna! "Dit is gevaarlijk," denkt ze.
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-emoji">📱</div>
+                    <div class="flow-text">
+                        <strong>Emma maakt een melding</strong><br>
+                        Ze opent de Signalen app, kiest de plek op de kaart, maakt een foto, en stuurt het in.
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-emoji">🐍➜🗄️</div>
+                    <div class="flow-text">
+                        <strong>Django ontvangt en slaat op</strong><br>
+                        De melding wordt gecontroleerd en opgeslagen in de database.
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-emoji">🐰➜🥬</div>
+                    <div class="flow-text">
+                        <strong>RabbitMQ en Celery gaan aan het werk</strong><br>
+                        Er wordt een e-mail naar Emma gestuurd en de melding wordt doorgestuurd naar team Bestrating.
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-emoji">👷🔧</div>
+                    <div class="flow-text">
+                        <strong>De stoeptegel wordt gerepareerd!</strong><br>
+                        Een medewerker van de gemeente komt langs en maakt de stoep weer veilig.
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-emoji">📧😊</div>
+                    <div class="flow-text">
+                        <strong>Emma krijgt bericht</strong><br>
+                        "Je melding is afgehandeld!" Emma is blij dat ze heeft geholpen.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAMENVATTING -->
+        <div class="story-card green">
+            <h2>📝 Samenvatting</h2>
+            <p>Signalen is dus eigenlijk een <strong>slim systeem</strong> dat bestaat uit:</p>
+            
+            <div class="illustration">
+                <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <td style="padding: 15px; font-size: 2rem;">🐍</td>
+                        <td style="padding: 15px;"><strong>Django</strong></td>
+                        <td style="padding: 15px;">De chef die alles regelt</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <td style="padding: 15px; font-size: 2rem;">🗄️</td>
+                        <td style="padding: 15px;"><strong>Database</strong></td>
+                        <td style="padding: 15px;">Het geheugen dat niks vergeet</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <td style="padding: 15px; font-size: 2rem;">🔍</td>
+                        <td style="padding: 15px;"><strong>Elasticsearch</strong></td>
+                        <td style="padding: 15px;">De super-snelle zoeker</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <td style="padding: 15px; font-size: 2rem;">🐰</td>
+                        <td style="padding: 15px;"><strong>RabbitMQ</strong></td>
+                        <td style="padding: 15px;">De postbode voor taken</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <td style="padding: 15px; font-size: 2rem;">🥬</td>
+                        <td style="padding: 15px;"><strong>Celery</strong></td>
+                        <td style="padding: 15px;">De werkmieren</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px; font-size: 2rem;">🔑</td>
+                        <td style="padding: 15px;"><strong>Keycloak</strong></td>
+                        <td style="padding: 15px;">De beveiliger</td>
+                    </tr>
+                </table>
+            </div>
+
+            <p style="text-align: center; font-size: 1.2rem; margin-top: 20px;">
+                <strong>Samen zorgen ze ervoor dat jouw melding op de juiste plek terechtkomt! 🎉</strong>
+            </p>
+        </div>
+
+        <div class="header" style="margin-top: 30px;">
+            <p>🏠 <a href="signalen-portal.html" style="color: #4299e1;">Terug naar de Portal</a></p>
+        </div>
+    </div>
+</body>
+</html>

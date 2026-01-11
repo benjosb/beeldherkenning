@@ -66,15 +66,45 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Serveer HTML
+    // Serveer Portal als hoofdpagina
     if (req.url === '/' || req.url === '/index.html') {
-        fs.readFile(path.join(__dirname, 'signalen-opstartgids.html'), (err, data) => {
+        fs.readFile(path.join(__dirname, 'signalen-portal.html'), (err, data) => {
             if (err) {
                 res.writeHead(500);
-                res.end('Error loading index.html');
+                res.end('Error loading portal');
                 return;
             }
             res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(data);
+        });
+        return;
+    }
+
+    // Serveer alle HTML bestanden (opstartgids, architectuur, uitleg, etc.)
+    if (req.url.endsWith('.html')) {
+        const filePath = path.join(__dirname, req.url);
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                res.end('Bestand niet gevonden: ' + req.url);
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(data);
+        });
+        return;
+    }
+
+    // Serveer MD bestanden als plain text
+    if (req.url.endsWith('.md')) {
+        const filePath = path.join(__dirname, req.url);
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                res.end('Bestand niet gevonden');
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
             res.end(data);
         });
         return;

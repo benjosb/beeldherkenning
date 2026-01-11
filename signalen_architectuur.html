@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectuur Overzicht - Signalen.org</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --purple: #9b59b6;
+            --bg: #f4f7f6;
+            --card: #ffffff;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            color: #333; 
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: auto; 
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a252f 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2em;
+        }
+        
+        .header .subtitle {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+        
+        .card { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: var(--primary);
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card h3 {
+            color: var(--primary);
+            margin-top: 25px;
+        }
+        
+        .mermaid { 
+            background: #fafbfc; 
+            padding: 30px; 
+            border-radius: 8px;
+            display: flex; 
+            justify-content: center;
+            border: 1px solid #e1e4e8;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .component-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .component-card.database { border-left-color: #e67e22; }
+        .component-card.search { border-left-color: #f1c40f; }
+        .component-card.auth { border-left-color: #9b59b6; }
+        .component-card.queue { border-left-color: #e74c3c; }
+        .component-card.worker { border-left-color: #27ae60; }
+        .component-card.mail { border-left-color: #1abc9c; }
+        
+        .component-card h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .component-card .port {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: normal;
+        }
+        
+        .component-card p {
+            margin: 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        .component-card ul {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .badge.public { background: #d4edda; color: #155724; }
+        .badge.private { background: #f8d7da; color: #721c24; }
+        
+        .nav {
+            position: sticky;
+            top: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 2px 0;
+            font-size: 0.9em;
+        }
+        
+        .nav a:hover {
+            background: var(--bg);
+            color: var(--accent);
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            .nav {
+                position: static;
+            }
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .flow-step .number {
+            background: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .port-table td:first-child {
+            font-weight: bold;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🏗️ Signalen.org Architectuur</h1>
+        <div class="subtitle">Technisch overzicht van het meldingensysteem voor Gemeente Wassenaar</div>
+    </div>
+
+    <div class="two-col">
+        <div>
+            <nav class="nav">
+                <strong style="padding: 8px 12px; display: block; color: #666;">📋 Inhoud</strong>
+                <a href="#overview">Overzicht</a>
+                <a href="#docker">Docker Stack</a>
+                <a href="#components">Componenten</a>
+                <a href="#api">API Structuur</a>
+                <a href="#dataflow">Data Flow</a>
+                <a href="#ports">Poorten</a>
+            </nav>
+        </div>
+        
+        <div>
+            <!-- OVERZICHT -->
+            <div class="card" id="overview">
+                <h2>📊 High-Level Architectuur</h2>
+                <p>Signalen is een <strong>meldingenbeheer systeem</strong> ontwikkeld door Gemeente Amsterdam. 
+                Het stelt burgers in staat om meldingen te doen over de openbare ruimte en biedt 
+                gemeenteambtenaren tools om deze te verwerken.</p>
+                
+                <div class="mermaid">
+                    graph TB
+                        subgraph Browser["🌐 Browser / Client"]
+                            Burger["👤 Burger<br/>(React :3001)"]
+                            Behandelaar["👔 Behandelaar<br/>(React :3001)"]
+                            Admin["🔧 Admin<br/>(Django :8000)"]
+                        end
+                        
+                        subgraph API_Layer["🔀 API Gateway"]
+                            Django["Django REST Framework<br/>:8000/signals/"]
+                        end
+                        
+                        subgraph Data_Layer["💾 Data Layer"]
+                            DB[("🐘 PostgreSQL<br/>+ PostGIS")]
+                            ES[["🔍 Elasticsearch"]]
+                        end
+                        
+                        subgraph Auth_Layer["🔐 Authenticatie"]
+                            KC{"🔑 Keycloak<br/>:8002"}
+                        end
+                        
+                        subgraph Async_Layer["⚡ Async Processing"]
+                            RabbitMQ(("🐰 RabbitMQ"))
+                            Celery["🥬 Celery Workers"]
+                            Beat["⏰ Celery Beat"]
+                        end
+                        
+                        subgraph Dev_Tools["🛠️ Development"]
+                            Mailpit["📧 Mailpit"]
+                            Flower["🌸 Flower"]
+                        end
+                        
+                        Burger -->|"POST melding"| Django
+                        Behandelaar -->|"OIDC Login"| KC
+                        Behandelaar -->|"API Requests"| Django
+                        Admin --> Django
+                        
+                        Django --> DB
+                        Django -->|"Search"| ES
+                        Django -->|"Auth"| KC
+                        Django -->|"Task"| RabbitMQ
+                        
+                        RabbitMQ --> Celery
+                        Beat -->|"Schedule"| RabbitMQ
+                        Celery --> DB
+                        Celery -->|"Index"| ES
+                        Celery -->|"Email"| Mailpit
+                        Celery -.->|"Monitor"| Flower
+                        
+                        style Django fill:#3498db,color:#fff
+                        style DB fill:#e67e22,color:#fff
+                        style ES fill:#f1c40f,color:#000
+                        style KC fill:#9b59b6,color:#fff
+                        style RabbitMQ fill:#e74c3c,color:#fff
+                        style Celery fill:#27ae60,color:#fff
+                </div>
+            </div>
+
+            <!-- DOCKER STACK -->
+            <div class="card" id="docker">
+                <h2>🐳 Docker Compose Stack</h2>
+                <p>Alle services draaien in Docker containers en communiceren via een intern netwerk.</p>
+                
+                <div class="mermaid">
+                    graph TB
+                        subgraph Core["🎯 Core Services"]
+                            api["api<br/>(Django)"]
+                            celery["celery<br/>(Worker)"]
+                            celery_beat["celery_beat<br/>(Scheduler)"]
+                            flower["flower<br/>(Monitor)"]
+                        end
+                        
+                        subgraph Data["💾 Data Stores"]
+                            database["database<br/>(PostgreSQL)"]
+                            elasticsearch["elasticsearch<br/>(Search)"]
+                        end
+                        
+                        subgraph Messaging["📨 Messaging"]
+                            rabbit["rabbit<br/>(RabbitMQ)"]
+                            mailpit["mailpit<br/>(SMTP)"]
+                        end
+                        
+                        subgraph Auth["🔐 Authentication"]
+                            keycloak["keycloak<br/>(IAM)"]
+                            dex["dex<br/>(OIDC)"]
+                        end
+                        
+                        subgraph Storage["📦 Storage"]
+                            minio["minio<br/>(S3)"]
+                        end
+                        
+                        api --> database
+                        api --> elasticsearch
+                        api --> rabbit
+                        api --> keycloak
+                        
+                        celery --> database
+                        celery --> elasticsearch
+                        celery --> rabbit
+                        celery --> mailpit
+                        
+                        celery_beat --> rabbit
+                        flower --> rabbit
+                        
+                        style api fill:#3498db,color:#fff
+                        style database fill:#e67e22,color:#fff
+                        style elasticsearch fill:#f1c40f,color:#000
+                        style rabbit fill:#e74c3c,color:#fff
+                        style keycloak fill:#9b59b6,color:#fff
+                        style celery fill:#27ae60,color:#fff
+                </div>
+                
+                <h3>🔄 Opstartvolgorde (Dependencies)</h3>
+                <div class="mermaid">
+                    graph LR
+                        database --> celery
+                        elasticsearch --> celery
+                        rabbit --> celery
+                        mailpit --> celery
+                        celery --> celery_beat
+                        celery --> api
+                        dex --> api
+                        keycloak
+                </div>
+            </div>
+
+            <!-- COMPONENTEN -->
+            <div class="card" id="components">
+                <h2>🧩 Componenten in Detail</h2>
+                
+                <div class="grid">
+                    <div class="component-card">
+                        <h4>🐍 Django API <span class="port">:8000</span></h4>
+                        <p>Het <strong>hart van de applicatie</strong>. Django REST Framework applicatie die:</p>
+                        <ul>
+                            <li>REST API endpoints biedt</li>
+                            <li>Meldingen ontvangt en valideert</li>
+                            <li>Authenticatie via OIDC (Keycloak)</li>
+                            <li>Admin interface voor beheerders</li>
+                            <li>Media bestanden (foto's) beheert</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card database">
+                        <h4>🐘 PostgreSQL + PostGIS <span class="port">:5432</span></h4>
+                        <p>De <strong>primaire dataopslag</strong> voor alle applicatiegegevens:</p>
+                        <ul>
+                            <li>Meldingen met status en categorie</li>
+                            <li>Gebruikers, rollen, rechten</li>
+                            <li>GIS data (locaties, geometrie)</li>
+                            <li>Audit trail (statusgeschiedenis)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card search">
+                        <h4>🔍 Elasticsearch <span class="port">:9200</span></h4>
+                        <p><strong>Zoekengine</strong> voor full-text search en snelle filtering:</p>
+                        <ul>
+                            <li>Zoeken op tekst, adres, beschrijving</li>
+                            <li>Autocomplete suggesties</li>
+                            <li>Aggregaties en statistieken</li>
+                            <li>Veel efficiënter dan SQL voor complexe queries</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card queue">
+                        <h4>🐰 RabbitMQ <span class="port">:5672</span></h4>
+                        <p><strong>Message broker</strong> voor asynchrone communicatie:</p>
+                        <ul>
+                            <li>Task queue voor Celery workers</li>
+                            <li>Taken gaan niet verloren bij crashes</li>
+                            <li>Load balancing over workers</li>
+                            <li>Management UI op :15672</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card worker">
+                        <h4>🥬 Celery (Worker + Beat) <span class="port">:5566</span></h4>
+                        <p><strong>Distributed task queue</strong> voor achtergrondtaken:</p>
+                        <ul>
+                            <li><code>send_mail_reporter</code> - Email naar melder</li>
+                            <li><code>save_to_elastic</code> - Indexeren in ES</li>
+                            <li><code>apply_routing</code> - Routeringsregels</li>
+                            <li><code>anonymize_reporters</code> - Privacy cleanup</li>
+                            <li><code>delete_signals</code> - Oude meldingen verwijderen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card auth">
+                        <h4>🔑 Keycloak <span class="port">:8002</span></h4>
+                        <p><strong>Identity & Access Management</strong> voor Single Sign-On:</p>
+                        <ul>
+                            <li>OIDC authenticatie protocol</li>
+                            <li>Role Based Access Control</li>
+                            <li>Federatie met Azure AD mogelijk</li>
+                            <li>Admin console: admin/admin</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card mail">
+                        <h4>📧 Mailpit <span class="port">:8025</span></h4>
+                        <p><strong>Fake SMTP server</strong> voor development:</p>
+                        <ul>
+                            <li>Vangt alle uitgaande emails op</li>
+                            <li>Web interface om emails te bekijken</li>
+                            <li>Voorkomt test-emails naar echte adressen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📦 MinIO <span class="port">:9000</span></h4>
+                        <p><strong>S3-compatibele object storage</strong>:</p>
+                        <ul>
+                            <li>Simuleert AWS S3 lokaal</li>
+                            <li>Opslag voor bijlagen/foto's</li>
+                            <li>Console op :9001</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API STRUCTUUR -->
+            <div class="card" id="api">
+                <h2>🔌 API Structuur</h2>
+                
+                <h3><span class="badge public">PUBLIC</span> Publieke API (Geen authenticatie)</h3>
+                <p>Endpoints voor burgers en externe systemen:</p>
+                <table>
+                    <tr><th>Methode</th><th>Endpoint</th><th>Beschrijving</th></tr>
+                    <tr><td><code>POST</code></td><td>/signals/v1/public/signals/</td><td>Nieuwe melding maken</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/public/signals/{uuid}</td><td>Eigen melding ophalen</td></tr>
+                    <tr><td><code>POST</code></td><td>/signals/v1/public/signals/{uuid}/attachments</td><td>Foto toevoegen</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/public/terms/categories/</td><td>Alle categorieën</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/public/areas/</td><td>Gebieden/wijken</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/public/map-signals/</td><td>Meldingen op kaart</td></tr>
+                </table>
+                
+                <h3><span class="badge private">PRIVATE</span> Private API (Authenticatie vereist)</h3>
+                <p>Endpoints voor behandelaars en beheerders:</p>
+                <table>
+                    <tr><th>Methode</th><th>Endpoint</th><th>Beschrijving</th></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/private/signals/</td><td>Lijst meldingen (gefilterd)</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/private/signals/{id}</td><td>Melding detail</td></tr>
+                    <tr><td><code>PATCH</code></td><td>/signals/v1/private/signals/{id}</td><td>Melding updaten</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/private/users/</td><td>Alle gebruikers</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/private/departments/</td><td>Afdelingen</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/private/search/</td><td>Full-text zoeken</td></tr>
+                    <tr><td><code>GET</code></td><td>/signals/v1/private/csv/</td><td>CSV export</td></tr>
+                </table>
+                
+                <h3>📝 Voorbeeld: Melding maken</h3>
+                <div class="code-block">
+<span class="keyword">POST</span> /signals/v1/public/signals/
+<span class="keyword">Content-Type:</span> application/json
+
+{
+  <span class="string">"text"</span>: <span class="string">"Kapotte lantaarnpaal op de hoek"</span>,
+  <span class="string">"location"</span>: {
+    <span class="string">"geometrie"</span>: {
+      <span class="string">"type"</span>: <span class="string">"Point"</span>,
+      <span class="string">"coordinates"</span>: [4.3956, 52.1454]
+    },
+    <span class="string">"address"</span>: {
+      <span class="string">"openbare_ruimte"</span>: <span class="string">"Schoolstraat"</span>,
+      <span class="string">"huisnummer"</span>: <span class="string">"10"</span>,
+      <span class="string">"woonplaats"</span>: <span class="string">"Wassenaar"</span>
+    }
+  },
+  <span class="string">"category"</span>: {
+    <span class="string">"sub_category"</span>: <span class="string">"/signals/v1/public/terms/categories/openbare-verlichting/sub_categories/lantaarnpaal"</span>
+  },
+  <span class="string">"reporter"</span>: {
+    <span class="string">"email"</span>: <span class="string">"burger@example.com"</span>
+  }
+}
+                </div>
+            </div>
+
+            <!-- DATA FLOW -->
+            <div class="card" id="dataflow">
+                <h2>🔄 Data Flow</h2>
+                
+                <h3>Melding maken (Burger)</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                        participant B as 👤 Burger
+                        participant F as 🖥️ Frontend
+                        participant A as 🐍 Django API
+                        participant P as 🐘 PostgreSQL
+                        participant R as 🐰 RabbitMQ
+                        participant C as 🥬 Celery
+                        participant E as 🔍 Elasticsearch
+                        participant M as 📧 Mailpit
+                        
+                        B->>F: Vult formulier in
+                        F->>A: POST /signals/
+                        A->>A: Valideer adres (PDOK)
+                        A->>P: Opslaan melding
+                        P-->>A: OK (signal_id)
+                        A->>R: Publiceer taken
+                        A-->>F: 201 Created
+                        F-->>B: Bevestiging
+                        
+                        R->>C: Taak: indexeer
+                        C->>E: Index document
+                        R->>C: Taak: email
+                        C->>M: Verstuur bevestiging
+                </div>
+                
+                <h3>Stap voor stap</h3>
+                <div class="flow-step">
+                    <div class="number">1</div>
+                    <div>Burger vult het meldingsformulier in op de React frontend (localhost:3001)</div>
+                </div>
+                <div class="flow-step">
+                    <div class="number">2</div>
+                    <div>Frontend stuurt een POST request naar de Django API</div>
+                </div>
+                <div class="flow-step">
+                    <div class="number">3</div>
+                    <div>Django valideert het adres via de PDOK Locatieserver (externe API)</div>
+                </div>
+                <div class="flow-step">
+                    <div class="number">4</div>
+                    <div>Django slaat de melding op in PostgreSQL en retourneert een UUID</div>
+                </div>
+                <div class="flow-step">
+                    <div class="number">5</div>
+                    <div>Django publiceert taken naar RabbitMQ (indexeren, email, routering)</div>
+                </div>
+                <div class="flow-step">
+                    <div class="number">6</div>
+                    <div>Celery workers pikken de taken op en voeren ze asynchroon uit</div>
+                </div>
+            </div>
+
+            <!-- POORTEN -->
+            <div class="card" id="ports">
+                <h2>🔌 Poorten Overzicht</h2>
+                <table class="port-table">
+                    <tr><th>Poort</th><th>Service</th><th>Beschrijving</th><th>URL</th></tr>
+                    <tr><td>3001</td><td>Frontend</td><td>React webapp</td><td><a href="http://localhost:3001">localhost:3001</a></td></tr>
+                    <tr><td>8000</td><td>API</td><td>Django REST API</td><td><a href="http://localhost:8000/signals/">localhost:8000/signals/</a></td></tr>
+                    <tr><td>8000</td><td>Admin</td><td>Django Admin</td><td><a href="http://localhost:8000/signals/admin/">localhost:8000/signals/admin/</a></td></tr>
+                    <tr><td>8002</td><td>Keycloak</td><td>Identity Management</td><td><a href="http://localhost:8002">localhost:8002</a></td></tr>
+                    <tr><td>5409</td><td>PostgreSQL</td><td>Database (extern)</td><td>localhost:5409</td></tr>
+                    <tr><td>9200</td><td>Elasticsearch</td><td>Search API</td><td><a href="http://localhost:9200">localhost:9200</a></td></tr>
+                    <tr><td>5672</td><td>RabbitMQ</td><td>Message Queue (AMQP)</td><td>amqp://localhost:5672</td></tr>
+                    <tr><td>15672</td><td>RabbitMQ</td><td>Management UI</td><td><a href="http://localhost:15672">localhost:15672</a></td></tr>
+                    <tr><td>5566</td><td>Flower</td><td>Celery Monitor</td><td><a href="http://localhost:5566">localhost:5566</a></td></tr>
+                    <tr><td>8025</td><td>Mailpit</td><td>Email UI</td><td><a href="http://localhost:8025">localhost:8025</a></td></tr>
+                    <tr><td>9001</td><td>MinIO</td><td>Object Storage UI</td><td><a href="http://localhost:9001">localhost:9001</a></td></tr>
+                </table>
+            </div>
+            
+            <!-- FOOTER -->
+            <div class="card" style="text-align: center; background: var(--primary); color: white;">
+                <p style="margin: 0;">
+                    📚 <strong>Referenties:</strong> 
+                    <a href="https://github.com/Amsterdam/signals" style="color: #85c1e9;">GitHub</a> · 
+                    <a href="https://signalen.org" style="color: #85c1e9;">signalen.org</a>
+                </p>
+                <p style="margin: 10px 0 0 0; opacity: 0.7; font-size: 0.9em;">
+                    Signalen Wassenaar · Laatst bijgewerkt: 11 januari 2026
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true, 
+        theme: 'neutral',
+        securityLevel: 'loose',
+        flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true
+        }
+    });
+</script>
+</body>
+</html>

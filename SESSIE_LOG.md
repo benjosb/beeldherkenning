@@ -4,6 +4,38 @@ Dit bestand houdt bij wat er per sessie is gedaan.
 
 ---
 
+## Sessie: 11 januari 2026
+
+### 🎉 MILESTONE: Systeem volledig werkend!
+
+Het hele systeem werkt nu end-to-end:
+- ✅ Opstarten verloopt probleemloos
+- ✅ Frontend draait met Wassenaar logo
+- ✅ Meldingen maken werkt (inclusief foto upload)
+- ✅ Meldingen komen binnen in de backend
+- ✅ Foto's zichtbaar in Django Admin
+
+### Wat we vandaag hebben opgelost:
+
+1. **Adresvalidatie voor Wassenaar gefixt**
+   - Probleem: PDOK zocht alleen in Amsterdam/Amstelveen/Weesp/Ouder-Amstel
+   - Oorzaak: `DEFAULT_PDOK_MUNICIPALITIES` stond op Amsterdam-regio
+   - Oplossing: `DEFAULT_PDOK_MUNICIPALITIES=Wassenaar` toegevoegd aan `.api`
+   - **Let op:** Na wijziging `.api` moet je `docker-compose up -d api` doen (niet `restart`!)
+
+2. **Django Admin verbeterd**
+   - Meldingen zijn nu klikbaar (voorheen `list_display_links = None`)
+   - AttachmentInline toegevoegd met foto preview thumbnail
+   - Locatie en omschrijving zichtbaar op detail pagina
+   - Bestand: `app/signals/apps/signals/admin/signal.py`
+
+### Technische details:
+- PDOK Locatieserver valideert adressen tegen BAG
+- Filter `gemeentenaam` bepaalt welke gemeenten worden doorzocht
+- Environment variables worden alleen geladen bij container CREATE, niet bij RESTART
+
+---
+
 ## Sessie: 8 januari 2026
 
 ### Wat we vandaag hebben gedaan:

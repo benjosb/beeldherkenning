@@ -1,6 +1,6 @@
 # Signalen Wassenaar - Projectdocumentatie
 
-> **Laatst bijgewerkt:** 7 januari 2026  
+> **Laatst bijgewerkt:** 11 januari 2026  
 > **Project locatie:** `/Users/dickbraam/Projects/signalen`  
 > **GitHub repo:** https://github.com/benjosb/beeldherkenning
 
@@ -135,7 +135,14 @@ In Stap 6 van de opstartgids kun je automatische meldingen simuleren:
 ### 3.6 Django Admin Toegang
 - ✅ Lokale login ingeschakeld (`ADMIN_ENABLE_LOCAL_LOGIN=True`)
 - ✅ Admin user: `admin` / `insecure` (of via "Reset Admin" knop)
+- ✅ Meldingen zijn klikbaar (detail pagina)
+- ✅ Foto's/bijlagen zichtbaar met preview thumbnail
 - URL: `http://localhost:8000/signals/admin/`
+
+### 3.7 Adresvalidatie Wassenaar
+- ✅ PDOK adresvalidatie geconfigureerd voor gemeente Wassenaar
+- ✅ Meldingen met Wassenaarse adressen worden correct gevalideerd
+- Instelling: `DEFAULT_PDOK_MUNICIPALITIES=Wassenaar` in `.api` config
 
 ---
 
@@ -235,9 +242,10 @@ npm start
 
 **Belangrijke instellingen:**
 ```
-ADMIN_ENABLE_LOCAL_LOGIN=True    # Lokale login in Django Admin
-CORS_ORIGIN_ALLOW_ALL=True       # Voor mobiele modus
-ALLOWED_HOSTS=*                  # Accepteer alle hosts
+ADMIN_ENABLE_LOCAL_LOGIN=True       # Lokale login in Django Admin
+CORS_ALLOW_ALL_ORIGINS=True         # Voor mobiele modus
+ALLOWED_HOSTS=*                     # Accepteer alle hosts
+DEFAULT_PDOK_MUNICIPALITIES=Wassenaar  # Adresvalidatie voor Wassenaar
 ```
 
 ---
@@ -278,6 +286,17 @@ ALLOWED_HOSTS=*                  # Accepteer alle hosts
 ### Probleem: Git push rejected
 **Oorzaak:** Remote heeft commits die je niet hebt  
 **Oplossing:** `git pull origin main --rebase` dan `git push`
+
+### Probleem: "Fout - Momenteel zijn er problemen met de website" bij melding maken
+**Oorzaak:** Adresvalidatie zoekt in verkeerde gemeente (Amsterdam i.p.v. Wassenaar)  
+**Oplossing:** 
+1. Voeg `DEFAULT_PDOK_MUNICIPALITIES=Wassenaar` toe aan `docker-compose/environments/.api`
+2. **Belangrijk:** Gebruik `docker-compose up -d api` (niet `restart`) om nieuwe env vars te laden
+3. Gebruik een echt bestaand adres in Wassenaar
+
+### Probleem: Kan niet klikken op meldingen in Django Admin
+**Oorzaak:** `list_display_links = None` in SignalAdmin  
+**Oplossing:** Al gefixt - meldingen zijn nu klikbaar op ID
 
 ---
 
@@ -352,6 +371,9 @@ ALLOWED_HOSTS=*                  # Accepteer alle hosts
 - [x] Logo Wassenaar zichtbaar
 - [x] Camera-auto simulatie
 - [x] Git backup systeem
+- [x] Meldingen maken werkt (adresvalidatie Wassenaar)
+- [x] Foto's uploaden bij meldingen
+- [x] Django Admin: meldingen bekijken met foto preview
 - [ ] Categorieën volledig inrichten
 
 ### Prioriteit 2 - Coördinator View

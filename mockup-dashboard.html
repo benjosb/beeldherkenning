@@ -895,7 +895,8 @@
         </div>
 
         <nav class="nav-tabs">
-            <button class="nav-tab active" onclick="switchMainView('kaart')">🗺️ Kaart</button>
+            <button class="nav-tab active" onclick="switchMainView('meldingen')">📋 Meldingen</button>
+            <button class="nav-tab" onclick="switchMainView('kaart')">🗺️ Kaart</button>
             <button class="nav-tab" onclick="switchMainView('rapportage')">📊 Rapportage</button>
             <button class="nav-tab" onclick="switchMainView('quality')">🎯 Quality</button>
         </nav>
@@ -910,8 +911,8 @@
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <!-- Sidebar (hidden by default, shown in Kaart view) -->
+        <aside class="sidebar" style="display: none;">
             <div class="sidebar-header">
                 <div class="sidebar-title">Filters</div>
                 <div class="filter-row">
@@ -1023,8 +1024,8 @@
             </div>
         </aside>
 
-        <!-- Map View -->
-        <main class="map-container" id="kaart-view">
+        <!-- Map View (hidden by default, Meldingen is first) -->
+        <main class="map-container" id="kaart-view" style="display: none;">
             <div id="map"></div>
 
             <!-- Map Legend -->
@@ -1253,8 +1254,183 @@
             </div>
         </main>
 
-        <!-- Quality View -->
-        <main class="rapportage-view" id="quality-view">
+        <!-- Meldingen View (Use Case: Alle geregistreerde meldingen) -->
+        <main class="rapportage-view active" id="meldingen-view" style="display: block;">
+            <div class="report-header">
+                <h1 class="report-title">📋 Alle Meldingen - Wassenaar</h1>
+                <p class="report-subtitle">Overzicht van alle geregistreerde signalen (inwoners + camera detecties)</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="report-grid" style="margin-bottom: 24px;">
+                <div class="report-card">
+                    <div class="report-card-title">📥 Totaal meldingen</div>
+                    <div class="report-card-value" style="color: var(--info);">1,247</div>
+                    <div class="report-card-subtitle">Afgelopen 30 dagen</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-title">🔴 Open</div>
+                    <div class="report-card-value" style="color: var(--danger);">89</div>
+                    <div class="report-card-subtitle">Wacht op behandeling</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-title">🟡 In behandeling</div>
+                    <div class="report-card-value" style="color: var(--warning);">34</div>
+                    <div class="report-card-subtitle">Toegewezen aan team</div>
+                </div>
+                <div class="report-card">
+                    <div class="report-card-title">🟢 Afgehandeld</div>
+                    <div class="report-card-value" style="color: var(--success);">1,124</div>
+                    <div class="report-card-subtitle">90% afhandelgraad</div>
+                </div>
+            </div>
+
+            <!-- Map + List Layout -->
+            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 20px;">
+                <!-- Kaart -->
+                <div class="bor-section" style="margin-bottom: 0; padding: 0; overflow: hidden;">
+                    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <h2 class="bor-title" style="margin: 0;">🗺️ Meldingen op kaart</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="filter-btn active" style="padding: 6px 12px;">Alle</button>
+                            <button class="filter-btn" style="padding: 6px 12px;">📷 Camera</button>
+                            <button class="filter-btn" style="padding: 6px 12px;">👤 Inwoner</button>
+                        </div>
+                    </div>
+                    <div id="meldingen-map" style="height: 450px; width: 100%;"></div>
+                    <div style="padding: 12px 20px; background: var(--bg-dark); display: flex; gap: 20px; font-size: 0.8rem;">
+                        <span><span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-right: 6px;"></span>Hoge prioriteit</span>
+                        <span><span style="display: inline-block; width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; margin-right: 6px;"></span>Normale prioriteit</span>
+                        <span><span style="display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 50%; margin-right: 6px;"></span>Lage prioriteit</span>
+                        <span style="margin-left: auto; color: var(--text-muted);">Klik op marker voor details</span>
+                    </div>
+                </div>
+
+                <!-- Recente Meldingen Lijst -->
+                <div class="bor-section" style="margin-bottom: 0; display: flex; flex-direction: column; max-height: 560px;">
+                    <div style="padding: 0 0 16px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <h2 class="bor-title" style="margin: 0;">📝 Recente meldingen</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">89 open</span>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; margin: 0 -24px; padding: 12px 24px;">
+                        <!-- Melding items -->
+                        <div style="background: var(--bg-dark); border-radius: 10px; padding: 14px; margin-bottom: 10px; border-left: 3px solid var(--danger); cursor: pointer;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='var(--bg-dark)'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 0.9rem;">Losliggende stoeptegel</span>
+                                <span style="font-size: 0.7rem; background: rgba(239,68,68,0.2); color: var(--danger); padding: 2px 8px; border-radius: 4px;">HOOG</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">📍 Langstraat 45</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                                <span>📷 Camera detectie</span>
+                                <span>2 min geleden</span>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-dark); border-radius: 10px; padding: 14px; margin-bottom: 10px; border-left: 3px solid var(--warning); cursor: pointer;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='var(--bg-dark)'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 0.9rem;">Bijplaatsing bij ORAC</span>
+                                <span style="font-size: 0.7rem; background: rgba(245,158,11,0.2); color: var(--warning); padding: 2px 8px; border-radius: 4px;">NORMAAL</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">📍 Rijksstraatweg 102</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                                <span>📷 Camera detectie</span>
+                                <span>15 min geleden</span>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-dark); border-radius: 10px; padding: 14px; margin-bottom: 10px; border-left: 3px solid var(--success); cursor: pointer;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='var(--bg-dark)'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 0.9rem;">Zwerfafval speeltuin</span>
+                                <span style="font-size: 0.7rem; background: rgba(16,185,129,0.2); color: var(--success); padding: 2px 8px; border-radius: 4px;">LAAG</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">📍 Park Oud Wassenaar</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                                <span>👤 Inwoner melding</span>
+                                <span>32 min geleden</span>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-dark); border-radius: 10px; padding: 14px; margin-bottom: 10px; border-left: 3px solid var(--danger); cursor: pointer;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='var(--bg-dark)'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 0.9rem;">Laaghangend groen (zichtbeperking)</span>
+                                <span style="font-size: 0.7rem; background: rgba(239,68,68,0.2); color: var(--danger); padding: 2px 8px; border-radius: 4px;">HOOG</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">📍 Schouwweg 12</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                                <span>📷 Camera detectie</span>
+                                <span>1 uur geleden</span>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-dark); border-radius: 10px; padding: 14px; margin-bottom: 10px; border-left: 3px solid var(--warning); cursor: pointer;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='var(--bg-dark)'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 0.9rem;">Lantaarnpaal scheef</span>
+                                <span style="font-size: 0.7rem; background: rgba(245,158,11,0.2); color: var(--warning); padding: 2px 8px; border-radius: 4px;">NORMAAL</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">📍 Duinweg 78</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                                <span>📷 Camera detectie</span>
+                                <span>2 uur geleden</span>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-dark); border-radius: 10px; padding: 14px; margin-bottom: 10px; border-left: 3px solid var(--success); cursor: pointer;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='var(--bg-dark)'">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                                <span style="font-weight: 600; font-size: 0.9rem;">Graffiti op bankje</span>
+                                <span style="font-size: 0.7rem; background: rgba(16,185,129,0.2); color: var(--success); padding: 2px 8px; border-radius: 4px;">LAAG</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">📍 Hofcampweg 23</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                                <span>👤 Inwoner melding</span>
+                                <span>3 uur geleden</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-top: 12px; border-top: 1px solid var(--border);">
+                        <button style="width: 100%; padding: 10px; background: var(--accent); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: 600; cursor: pointer; font-family: inherit;">Bekijk alle meldingen →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meldingen per Categorie -->
+            <div class="bor-section" style="margin-top: 24px;">
+                <h2 class="bor-title">📊 Meldingen per categorie (30 dagen)</h2>
+                <div class="bor-grid" style="grid-template-columns: repeat(6, 1fr);">
+                    <div class="bor-item">
+                        <div class="bor-icon">🧱</div>
+                        <div class="bor-score">287</div>
+                        <div class="bor-label">Verharding</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">🌿</div>
+                        <div class="bor-score">234</div>
+                        <div class="bor-label">Groen</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">🗑️</div>
+                        <div class="bor-score">312</div>
+                        <div class="bor-label">Afval</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">💡</div>
+                        <div class="bor-score">156</div>
+                        <div class="bor-label">Verlichting</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">🪧</div>
+                        <div class="bor-score">98</div>
+                        <div class="bor-label">Verkeer</div>
+                    </div>
+                    <div class="bor-item">
+                        <div class="bor-icon">📦</div>
+                        <div class="bor-score">160</div>
+                        <div class="bor-label">Overig</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Quality View --><main class="rapportage-view" id="quality-view">
             <div class="report-header">
                 <h1 class="report-title">🎯 Quality - Kernregistraties</h1>
                 <p class="report-subtitle">Datakwaliteit verbetering door foto-matching</p>
@@ -1328,10 +1504,17 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Initialize map centered on Wassenaar
-        const map = L.map('map', {
-            zoomControl: false
-        }).setView([52.1453, 4.3971], 14);
+        // Initialize main map (for Kaart view) - lazy loaded
+        let map = null;
+        
+        function initMainMap() {
+            if (map) {
+                map.invalidateSize();
+                return;
+            }
+            map = L.map('map', {
+                zoomControl: false
+            }).setView([52.1453, 4.3971], 14);
 
         // Dark map tiles
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -1366,17 +1549,84 @@
             { id: 10, lat: 52.1389, lng: 4.4123, title: "Lachgaspatronen", location: "Parkeerplaats strand", type: "camera", priority: "normal" },
         ];
 
-        // Add markers to map
-        meldingen.forEach(m => {
-            const marker = L.marker([m.lat, m.lng], {
-                icon: createMarkerIcon(m.type, m.priority)
-            }).addTo(map);
+            // Add markers to map
+            meldingen.forEach(m => {
+                const marker = L.marker([m.lat, m.lng], {
+                    icon: createMarkerIcon(m.type, m.priority)
+                }).addTo(map);
 
-            marker.bindPopup(`
-                <div class="popup-title">${m.title}</div>
-                <div class="popup-location">📍 ${m.location}</div>
-            `);
-        });
+                marker.bindPopup(`
+                    <div class="popup-title">${m.title}</div>
+                    <div class="popup-location">📍 ${m.location}</div>
+                `);
+            });
+        }
+
+        // Meldingen Map (initialized on load)
+        let meldingenMap = null;
+        
+        function initMeldingenMap() {
+            if (meldingenMap) {
+                meldingenMap.invalidateSize();
+                return;
+            }
+            
+            meldingenMap = L.map('meldingen-map', {
+                zoomControl: false
+            }).setView([52.1453, 4.3971], 13);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap, © CartoDB',
+                maxZoom: 19
+            }).addTo(meldingenMap);
+
+            // Alle meldingen data
+            const alleMeldingen = [
+                { lat: 52.1461, lng: 4.4012, title: "Losliggende stoeptegel", location: "Langstraat 45", priority: "high", source: "camera" },
+                { lat: 52.1438, lng: 4.3945, title: "Bijplaatsing bij ORAC", location: "Rijksstraatweg 102", priority: "normal", source: "camera" },
+                { lat: 52.1485, lng: 4.3892, title: "Zwerfafval speeltuin", location: "Park Oud Wassenaar", priority: "low", source: "inwoner" },
+                { lat: 52.1402, lng: 4.4056, title: "Laaghangend groen", location: "Schouwweg 12", priority: "high", source: "camera" },
+                { lat: 52.1512, lng: 4.3801, title: "Lantaarnpaal scheef", location: "Duinweg 78", priority: "normal", source: "camera" },
+                { lat: 52.1378, lng: 4.3998, title: "Graffiti op bankje", location: "Hofcampweg 23", priority: "low", source: "inwoner" },
+                { lat: 52.1495, lng: 4.4102, title: "Gat in wegdek", location: "Wassenaarseslag", priority: "high", source: "camera" },
+                { lat: 52.1423, lng: 4.3855, title: "Volle prullenbak", location: "Plein 1813", priority: "normal", source: "camera" },
+                { lat: 52.1467, lng: 4.3778, title: "Kapotte bank", location: "Landgoed De Horsten", priority: "low", source: "inwoner" },
+                { lat: 52.1389, lng: 4.4123, title: "Lachgaspatronen", location: "Parkeerplaats strand", priority: "normal", source: "camera" },
+                // Extra meldingen voor meer dichtheid
+                { lat: 52.1520, lng: 4.3920, title: "Scheef verkeersbord", location: "Johan de Wittlaan", priority: "normal", source: "camera" },
+                { lat: 52.1445, lng: 4.4080, title: "Kapotte lantaarnpaal", location: "Rijksstraatweg 45", priority: "high", source: "inwoner" },
+                { lat: 52.1390, lng: 4.3850, title: "Overhangende tak", location: "Wittenburgerweg", priority: "low", source: "camera" },
+                { lat: 52.1475, lng: 4.3750, title: "Verzakte stoep", location: "Deijlerweg", priority: "normal", source: "camera" },
+                { lat: 52.1505, lng: 4.4000, title: "Afval naast container", location: "Backershagenlaan", priority: "normal", source: "camera" },
+            ];
+
+            const colors = {
+                'high': '#ef4444',
+                'normal': '#f59e0b',
+                'low': '#10b981'
+            };
+
+            alleMeldingen.forEach(m => {
+                const marker = L.circleMarker([m.lat, m.lng], {
+                    radius: m.priority === 'high' ? 10 : 7,
+                    fillColor: colors[m.priority],
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(meldingenMap);
+
+                const sourceIcon = m.source === 'camera' ? '📷' : '👤';
+                marker.bindPopup(`
+                    <div class="popup-title">${m.title}</div>
+                    <div class="popup-location">📍 ${m.location}</div>
+                    <div style="font-size: 0.75rem; margin-top: 4px; color: var(--text-muted);">${sourceIcon} ${m.source === 'camera' ? 'Camera detectie' : 'Inwoner melding'}</div>
+                `);
+            });
+        }
+
+        // Initialize meldingen map on page load
+        setTimeout(initMeldingenMap, 100);
 
         // Quality Map (initialized on first view)
         let qualityMap = null;
@@ -1451,16 +1701,21 @@
             event.target.classList.add('active');
 
             // Hide all views
+            document.getElementById('meldingen-view').style.display = 'none';
             document.getElementById('kaart-view').style.display = 'none';
             document.getElementById('rapportage-view').style.display = 'none';
             document.getElementById('quality-view').style.display = 'none';
             document.querySelector('.sidebar').style.display = 'none';
 
             // Show selected view
-            if (view === 'kaart') {
+            if (view === 'meldingen') {
+                document.getElementById('meldingen-view').style.display = 'block';
+                document.getElementById('meldingen-view').classList.add('active');
+                setTimeout(initMeldingenMap, 100);
+            } else if (view === 'kaart') {
                 document.getElementById('kaart-view').style.display = 'block';
                 document.querySelector('.sidebar').style.display = 'flex';
-                map.invalidateSize();
+                setTimeout(initMainMap, 100);
             } else if (view === 'rapportage') {
                 document.getElementById('rapportage-view').style.display = 'block';
                 document.getElementById('rapportage-view').classList.add('active');

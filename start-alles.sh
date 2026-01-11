@@ -19,13 +19,14 @@ else
     echo "   Gebruik de 'Save Checkpoint' knop in het dashboard straks."
 fi
 
-echo -e "\n${YELLOW}🚀 Stap 2: Proberen te pushen naar GitHub...${NC}"
-# We proberen te pushen, maar falen zachtjes als het niet lukt (bv. auth nodig)
-if git push origin main 2>/dev/null; then
-    echo -e "${GREEN}✓ Alles staat veilig op GitHub!${NC}"
+echo -e "\n${YELLOW}📤 Stap 2: GitHub sync status...${NC}"
+# Check of er unpushed commits zijn
+UNPUSHED=$(git log origin/main..HEAD --oneline 2>/dev/null | wc -l | tr -d ' ')
+if [ "$UNPUSHED" -gt 0 ]; then
+    echo -e "${YELLOW}ℹ️  Je hebt $UNPUSHED lokale commit(s) die nog niet naar GitHub zijn gepusht.${NC}"
+    echo "   Gebruik: ${YELLOW}git push${NC} wanneer je klaar bent om te delen."
 else
-    echo -e "${RED}❌ Push niet gelukt (waarschijnlijk inloggen nodig of geen changes).${NC}"
-    echo "   Geen paniek. Typ straks in een nieuwe terminal: ${YELLOW}git push${NC} om in te loggen."
+    echo -e "${GREEN}✓ Lokaal en GitHub zijn in sync.${NC}"
 fi
 
 # 2. HERINNERING

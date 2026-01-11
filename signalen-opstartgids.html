@@ -336,7 +336,8 @@
                 <img src="signals-frontend/assets/images/wassenaar-logo.svg" alt="Gemeente Wassenaar" style="height: 50px;">
                 <h1 style="margin: 0;">Signalen Dashboard</h1>
             </div>
-            <button class="action-btn" style="background: #2d3748; margin: 0; display: inline-block;" onclick="saveToGit()">💾 Save Checkpoint</button>
+            <button class="action-btn" style="background: #2d3748; margin: 0; display: inline-block;" onclick="saveToGit()">💾 Commit</button>
+            <button class="action-btn" style="background: #38a169; margin: 0; display: inline-block;" onclick="pushToGit()">📤 Push naar GitHub</button>
         </div>
         <p class="subtitle">Opstartgids & Technische Documentatie</p>
         
@@ -547,10 +548,14 @@ docker-compose up -d</pre>
             </div>
             
             <div class="quick-links" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); margin-top: 20px;">
-                <h2 style="color: #c62828; font-size: 1.5em;">🛑 Stoppen</h2>
+                <h2 style="color: #c62828; font-size: 1.5em;">🛑 Stoppen & Opruimen</h2>
                 <div style="margin-bottom: 15px;">
                     <button class="action-btn" style="background: #e53e3e;" onclick="runAction('stop-backend', 'Stop', event)">🛑 Stop Backend</button>
+                    <button class="action-btn" style="background: #805ad5;" onclick="runAction('cleanup-old-containers', 'Stop', event)">🧹 Ruim oude containers op</button>
                 </div>
+                <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">
+                    💡 <strong>Poort conflict?</strong> Klik "Ruim oude containers op" als je een foutmelding krijgt over poorten die al in gebruik zijn (bijv. 9200, 8000).
+                </p>
                 <div id="consoleStop" class="console-output"></div>
             </div>
         </div>
@@ -1037,11 +1042,25 @@ CORS_ORIGIN_ALLOW_ALL=True</pre></div>
                 });
                 const data = await response.json();
                 
-                if (data.success) {
-                    alert("✅ Opgeslagen & Gepusht naar GitHub!\n\n" + data.output);
-                } else {
-                    alert("⚠️ Opgeslagen (Lokaal), maar Push mislukt.\nWaarschijnlijk moet je nog inloggen.\n\n" + data.output);
-                }
+                alert(data.output);
+            } catch (e) {
+                alert("❌ Error: " + e.message);
+            } finally {
+                btn.textContent = originalText;
+            }
+        }
+        
+        async function pushToGit() {
+            const btn = document.querySelector('button[onclick="pushToGit()"]');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Pushing...';
+            
+            try {
+                const response = await fetch(`${SERVER_URL}/api/git-push`, { 
+                    method: 'POST'
+                });
+                const data = await response.json();
+                alert(data.output);
             } catch (e) {
                 alert("❌ Error: " + e.message);
             } finally {

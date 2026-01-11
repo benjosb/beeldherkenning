@@ -104,6 +104,25 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Cleanup oude signals-* containers (van voor hernoeming naar signalen)
+    if (req.url === '/api/cleanup-old-containers' && req.method === 'POST') {
+        // Stap 1: Stop oude containers
+        exec('docker ps -a --format "{{.Names}}" | grep "^signals-" | xargs -r docker stop 2>/dev/null; docker ps -a --format "{{.Names}}" | grep "^signals-" | xargs -r docker rm 2>/dev/null', 
+            (error, stdout, stderr) => {
+                const output = stdout || stderr || "Geen oude containers gevonden.";
+                const cleaned = output.trim().split('\n').filter(l => l).length;
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    success: true, 
+                    output: cleaned > 0 
+                        ? `✅ ${cleaned / 2} oude 'signals-*' containers opgeruimd!\n\nJe kunt nu opnieuw de backend starten.`
+                        : "✅ Geen oude containers gevonden. Alles is schoon!"
+                }));
+            }
+        );
+        return;
+    }
+
     // API: Check Backend Status
     if (req.url === '/api/status-backend' && req.method === 'GET') {
         exec('docker-compose ps', { cwd: ROOT_DIR }, (error, stdout, stderr) => {
@@ -291,7 +310,7 @@ npm start -- --host 0.0.0.0 --allowed-hosts all
         return;
     }
 
-    // API: Git Save
+    // API: Git Save (alleen lokale commit, GEEN automatische push)
     if (req.url === '/api/git-save' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -304,19 +323,29 @@ npm start -- --host 0.0.0.0 --allowed-hosts all
                 if(err) {
                     res.writeHead(500); res.end(JSON.stringify({success:false, output: stderr})); return;
                 }
-                // 2. Commit
+                // 2. Commit (GEEN automatische push meer)
                 exec(`git commit -m "${commitMsg}"`, { cwd: ROOT_DIR }, (err, stdout, stderr) => {
-                     // 3. Push
-                     exec('git push origin main', { cwd: ROOT_DIR }, (err, stdout, stderr) => {
-                         const output = stdout || stderr;
-                         res.writeHead(200, { 'Content-Type': 'application/json' });
-                         res.end(JSON.stringify({ 
-                             success: !err, 
-                             output: err ? "Commit OK, Push failed:\n" + output : "Succesvol gepusht naar GitHub!"
-                         }));
-                     });
+                    const output = stdout || stderr;
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        success: !err, 
+                        output: err ? output : `✅ Lokaal opgeslagen!\n\nCommit: "${commitMsg}"\n\n💡 Gebruik 'git push' in terminal om naar GitHub te pushen.`
+                    }));
                 });
             });
+        });
+        return;
+    }
+    
+    // API: Git Push (aparte knop voor handmatige push)
+    if (req.url === '/api/git-push' && req.method === 'POST') {
+        exec('git push origin main', { cwd: ROOT_DIR }, (err, stdout, stderr) => {
+            const output = stdout || stderr;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                success: !err, 
+                output: err ? `Push mislukt:\n${output}` : "✅ Succesvol gepusht naar GitHub!"
+            }));
         });
         return;
     }
